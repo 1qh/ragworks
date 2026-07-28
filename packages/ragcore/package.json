@@ -1,5 +1,5 @@
 {
-  "name": "ragcore",
+  "name": "@1qh/ragcore",
   "version": "0.0.0",
   "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
   "repository": {

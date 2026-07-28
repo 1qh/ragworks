@@ -18,7 +18,7 @@ It is not a whole RAG engine, and the name says so. Retrieval — query understa
 ## Install
 
 ```sh
-bun add rag-ingest      # or npm / pnpm
+bun add @1qh/ragcore      # or npm / pnpm
 ```
 
 Needs a [docling](https://github.com/docling-project/docling) service for parsing, and a provider registry file naming your OpenAI-compatible endpoints for embedding. Both are configuration, not vendors: any OpenAI-compatible host works, local or managed.
@@ -26,7 +26,7 @@ Needs a [docling](https://github.com/docling-project/docling) service for parsin
 ## Use
 
 ```ts
-import { buildChunks, configureEngine, parseDocument } from 'rag-ingest'
+import { buildChunks, configureEngine, parseDocument } from '@1qh/ragcore'
 
 configureEngine({
   DOCLING_URL: 'http://localhost:5001',
