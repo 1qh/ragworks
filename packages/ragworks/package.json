@@ -23,7 +23,8 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "prepublishOnly": "tsdown"
+    "prepublishOnly": "bun run build",
+    "postpublish": "bun ../../tools/prune-versions.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "latest",
