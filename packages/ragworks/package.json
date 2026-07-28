@@ -1,6 +1,6 @@
 {
   "name": "ragworks",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
   "repository": {
     "type": "git",
@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
+    },
+    "./bridge": {
+      "types": "./dist/bridge.d.mts",
+      "default": "./dist/bridge.mjs"
     }
   },
   "main": "./dist/index.mjs",
