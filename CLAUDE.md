@@ -9,6 +9,7 @@
 - [Git](#git)
 - [Lintmax](#lintmax)
 - [Security](#security)
+- [tsdown](#tsdown)
 - [TypeScript](#typescript)
 
 ---
@@ -402,6 +403,23 @@ Credential handling, env scoping, server/client boundary, mechanism-asserted inv
 ### Caught by
 
 - PR env-var audit: no `NEXT_PUBLIC_*` name with key/secret/token/password/private; new client fetch goes through a server boundary; credential server actions short-circuit in test-mode; `.env.example` marks server-only vars without the prefix.
+
+---
+
+## tsdown
+
+Building + publishing library packages with tsdown.
+
+### MUST
+
+- Build/publish packages with `tsdown`. Why: standard ecosystem build.
+- Emit ESM + declaration files. Why: consumers need types.
+- `prepublishOnly` builds before publish. Why: never ship stale `dist/`.
+- Export every type used in the public API. Why: DTS generation fails on unexported internal types leaking through re-exports.
+
+### NEVER
+
+- Never bundle deps consumers should install themselves. Cost: duplicate/version-conflict in consumer tree.
 
 ---
 
