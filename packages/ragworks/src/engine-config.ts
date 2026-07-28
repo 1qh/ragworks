@@ -26,7 +26,7 @@ const REQUIRED = ['DOCLING_URL', 'PROVIDERS_FILE'] as const
 let supplied: EngineConfig | null = null
 const configureEngine = (config: EngineConfig): void => {
   for (const key of REQUIRED)
-    if (!config[key]) throw new Error(`ragcore: ${key} is required — supply it to configureEngine()`)
+    if (!config[key]) throw new Error(`ragworks: ${key} is required — supply it to configureEngine()`)
   supplied = config
 }
 /** Reads the supplied configuration, falling back to the process environment so a consumer may set
@@ -38,7 +38,7 @@ const engineEnv = new Proxy({} as EngineConfig, {
     /** biome-ignore lint/style/noProcessEnv: this module IS the configuration boundary a consumer supplies */
     const value = supplied === null ? process.env[key] : supplied[key as keyof EngineConfig]
     if (value === undefined && (REQUIRED as readonly string[]).includes(key))
-      throw new Error(`ragcore: ${key} is not configured — call configureEngine() or set ${key}`)
+      throw new Error(`ragworks: ${key} is not configured — call configureEngine() or set ${key}`)
     return value
   }
 })

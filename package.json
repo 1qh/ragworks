@@ -1,7 +1,7 @@
 {
-  "name": "ragcore-root",
+  "name": "ragworks-root",
   "private": true,
-  "description": "Monorepo root for ragcore.",
+  "description": "Monorepo root for ragworks.",
   "license": "Apache-2.0",
   "type": "module",
   "workspaces": [

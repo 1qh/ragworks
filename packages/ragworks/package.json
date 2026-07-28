@@ -1,10 +1,10 @@
 {
-  "name": "@1qh/ragcore",
+  "name": "ragworks",
   "version": "0.0.0",
   "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/1qh/ragcore.git"
+    "url": "git+https://github.com/1qh/ragworks.git"
   },
   "license": "Apache-2.0",
   "author": "1qh",
