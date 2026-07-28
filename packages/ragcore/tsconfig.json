@@ -10,5 +10,6 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true
   },
-  "extends": "lintmax/tsconfig"
+  "extends": "lintmax/tsconfig",
+  "exclude": ["dist"]
 }

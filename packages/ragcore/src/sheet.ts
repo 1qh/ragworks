@@ -1,4 +1,5 @@
-import { Workbook } from 'exceljs'
+import type { Workbook } from 'exceljs'
+import exceljs from 'exceljs'
 import { Readable } from 'node:stream'
 import type { ParseResult } from './docling'
 import type { Block, PageDim } from './lib'
@@ -22,7 +23,7 @@ const cellText = (value: unknown): string => {
   return scalar(value)
 }
 const loadWorkbook = async (bytes: Uint8Array<ArrayBuffer>, name: string): Promise<Workbook> => {
-  const wb = new Workbook()
+  const wb = new exceljs.Workbook()
   await (CSV_RE.test(name) ? wb.csv.read(Readable.from(Buffer.from(bytes))) : wb.xlsx.load(bytes.buffer))
   return wb
 }

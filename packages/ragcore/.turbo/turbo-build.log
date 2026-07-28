@@ -1,0 +1,22 @@
+$ tsdown
+[34mℹ[39m [34mtsdown v0.22.14[39m powered by [38;2;255;126;23mrolldown v1.2.0[39m
+[34mℹ[39m config file: [4m/Users/o/ragcore/ragcore/packages/ragcore/tsdown.config.ts[24m 
+[34mℹ[39m entry: [34msrc/index.ts[39m
+[34mℹ[39m tsconfig: [34mtsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                   [2m 38.28 kB[22m [2m│ gzip: 12.24 kB[22m
+[34mℹ[39m [2mdist/[22mchandra-B0JAwvom.mjs        [2m138.35 kB[22m [2m│ gzip: 23.08 kB[22m
+[34mℹ[39m [2mdist/[22mdocling-DLaGChTz.mjs        [2m 17.15 kB[22m [2m│ gzip:  5.57 kB[22m
+[34mℹ[39m [2mdist/[22mtelemetry-DSVPBq16.mjs      [2m 10.61 kB[22m [2m│ gzip:  3.87 kB[22m
+[34mℹ[39m [2mdist/[22mreconcile-C6LmTWSP.mjs      [2m  5.75 kB[22m [2m│ gzip:  2.15 kB[22m
+[34mℹ[39m [2mdist/[22mdatalab-CyVkQLVI.mjs        [2m  3.76 kB[22m [2m│ gzip:  1.65 kB[22m
+[34mℹ[39m [2mdist/[22mtable-grid-BdhJzZJr.mjs     [2m  1.93 kB[22m [2m│ gzip:  0.87 kB[22m
+[34mℹ[39m [2mdist/[22moffice-render-DmfQBWLh.mjs  [2m  1.53 kB[22m [2m│ gzip:  0.77 kB[22m
+[34mℹ[39m [2mdist/[22mengine-config-DciApYLA.mjs  [2m  1.25 kB[22m [2m│ gzip:  0.70 kB[22m
+[34mℹ[39m [2mdist/[22mmineru-smwUzaSg.mjs         [2m  1.17 kB[22m [2m│ gzip:  0.64 kB[22m
+[34mℹ[39m [2mdist/[22mlog-LajhnQYI.mjs            [2m  0.69 kB[22m [2m│ gzip:  0.37 kB[22m
+[34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m                 [2m  8.33 kB[22m [2m│ gzip:  2.72 kB[22m
+[34mℹ[39m 12 files, total: 228.81 kB
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+
+[32m✔[39m Build complete in [32m5157ms[39m
