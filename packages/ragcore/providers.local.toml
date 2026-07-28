@@ -1,0 +1,36 @@
+# Local-only provider registry: our self-host prod depends solely on the host MLX models
+# (chandra for parsing/vlm) plus the delegate-to-the-calling-agent option over MCP for every
+# LLM stage — zero external provider. The gemini / datalab / vertex files stay in this dir as
+# stakeholder-deployment options; a deployment selects its file by PROVIDERS_FILE.
+
+[[providers]]
+id = "local-chat"
+base_url = "http://localhost:7000/v1"
+roles = ["chat"]
+models = ["mlx-community/gemma-3-4b-it-4bit"]
+
+[[providers]]
+id = "local-embed"
+base_url = "http://localhost:8010/v1"
+roles = ["embed"]
+models = ["mlx-community/Qwen3-Embedding-0.6B-mxfp8"]
+served_as = { "mlx-community/Qwen3-Embedding-0.6B-mxfp8" = "embed" }
+
+[[providers]]
+id = "local-vlm"
+base_url = "http://localhost:8010/v1"
+roles = ["vlm"]
+models = ["1qh/chandra-ocr-2-4bit-mlx"]
+served_as = { "1qh/chandra-ocr-2-4bit-mlx" = "vlm" }
+
+[[providers]]
+id = "local-colbert"
+base_url = "http://localhost:8092"
+roles = ["rerank"]
+models = ["BAAI/bge-m3"]
+
+[[providers]]
+id = "local-rerank"
+base_url = "http://localhost:8090"
+roles = ["rerank"]
+models = ["itdainb/PhoRanker", "namdp-ptit/ViRanker", "BAAI/bge-reranker-v2-m3"]

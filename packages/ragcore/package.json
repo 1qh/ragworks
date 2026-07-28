@@ -1,0 +1,41 @@
+{
+  "name": "ragcore",
+  "version": "0.1.0",
+  "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1qh/ragcore.git"
+  },
+  "license": "Apache-2.0",
+  "author": "1qh",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "latest",
+    "@docling/docling-core": "latest",
+    "@flatten-js/interval-tree": "latest",
+    "@mastra/rag": "latest",
+    "@opensearch-project/opensearch": "latest",
+    "@opentelemetry/api": "latest",
+    "@opentelemetry/exporter-trace-otlp-http": "latest",
+    "@opentelemetry/resources": "latest",
+    "@opentelemetry/sdk-trace-base": "latest",
+    "@opentelemetry/semantic-conventions": "latest",
+    "ai": "latest",
+    "cockatiel": "latest",
+    "exceljs": "latest",
+    "fractional-indexing": "latest",
+    "google-auth-library": "latest",
+    "mupdf": "latest",
+    "node-html-parser": "latest",
+    "pino": "latest",
+    "smol-toml": "latest",
+    "zod": "latest"
+  }
+}

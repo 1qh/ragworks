@@ -1,0 +1,74 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "env": [
+        "DOCLING_URL",
+        "PROVIDERS_FILE",
+        "SOFFICE_PATH",
+        "MODELS_STUB",
+        "CHONKIE_URL",
+        "MINERU_URL",
+        "REDIS_URL",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "VERTEX_CLIENT_EMAIL",
+        "VERTEX_LOCATION",
+        "VERTEX_PRIVATE_KEY",
+        "VERTEX_PROJECT"
+      ]
+    },
+    "check": {
+      "cache": false,
+      "env": [
+        "DOCLING_URL",
+        "PROVIDERS_FILE",
+        "SOFFICE_PATH",
+        "MODELS_STUB",
+        "CHONKIE_URL",
+        "MINERU_URL",
+        "REDIS_URL",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "VERTEX_CLIENT_EMAIL",
+        "VERTEX_LOCATION",
+        "VERTEX_PRIVATE_KEY",
+        "VERTEX_PROJECT"
+      ]
+    },
+    "fix": {
+      "cache": false,
+      "env": [
+        "DOCLING_URL",
+        "PROVIDERS_FILE",
+        "SOFFICE_PATH",
+        "MODELS_STUB",
+        "CHONKIE_URL",
+        "MINERU_URL",
+        "REDIS_URL",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "VERTEX_CLIENT_EMAIL",
+        "VERTEX_LOCATION",
+        "VERTEX_PRIVATE_KEY",
+        "VERTEX_PROJECT"
+      ]
+    },
+    "test": {
+      "cache": false,
+      "env": [
+        "DOCLING_URL",
+        "PROVIDERS_FILE",
+        "SOFFICE_PATH",
+        "MODELS_STUB",
+        "CHONKIE_URL",
+        "MINERU_URL",
+        "REDIS_URL",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "VERTEX_CLIENT_EMAIL",
+        "VERTEX_LOCATION",
+        "VERTEX_PRIVATE_KEY",
+        "VERTEX_PROJECT"
+      ]
+    }
+  }
+}
