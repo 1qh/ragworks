@@ -5,6 +5,13 @@ interface Block {
   readonly cell?: Cell
   readonly kind?: string
   readonly page: number
+  /** A table row whose text already names the column and group of every cell it holds, because the grid
+   * describer writes those labels into the row itself. Such a row needs no sibling row for context, and a
+   * consumer that prefixes one costs discrimination rather than adding it: on a table of near-identical
+   * rows the prefixed row's figures appear in every passage, so a reader can return the wrong row's number
+   * and a retriever sees passages half-composed of identical text. A row from a parse that emits a
+   * separate header row carries no such labels and still wants that header prefixed. */
+  readonly selfLabeled?: boolean
   readonly text: string
 }
 type Brand<T, B extends string> = T & { readonly __brand: B }
