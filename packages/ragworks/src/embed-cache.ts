@@ -1,17 +1,21 @@
-import { RedisClient } from 'bun'
+/** Bun APIs are reached through the GLOBAL here, not `import { … } from 'bun'`, and a fleet rule that
+ * prefers the named form does not apply to a PUBLISHED LIBRARY. A consumer bundling for Next cannot
+ * resolve the `bun` module — its build dies with "Cannot find module 'bun'" — while the global
+ * resolves everywhere. A lint gate cannot see this, because it never assembles the dependency graph:
+ * the engine gate passed, the consumer's typecheck passed, and only the consumer's BUILD failed. */
 import { createHash } from 'node:crypto'
 import { engineEnv as env } from './engine-config'
 import { log } from './log'
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30
-let client: null | RedisClient = null
+let client: null | Bun.RedisClient = null
 let tried = false
-const redis = (): null | RedisClient => {
+const redis = (): null | Bun.RedisClient => {
   if (env.REDIS_URL === undefined) return null
   if (!(client || tried)) {
     tried = true
     try {
-      client = new RedisClient(env.REDIS_URL)
+      client = new Bun.RedisClient(env.REDIS_URL)
     } catch (error) {
       log.warn({ error: error instanceof Error ? error.message : String(error) }, 'embed cache redis init failed')
     }

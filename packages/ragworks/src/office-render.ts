@@ -1,4 +1,8 @@
-import { file, spawn, write } from 'bun'
+/** Bun APIs are reached through the GLOBAL here, not `import { … } from 'bun'`, and a fleet rule that
+ * prefers the named form does not apply to a PUBLISHED LIBRARY. A consumer bundling for Next cannot
+ * resolve the `bun` module — its build dies with "Cannot find module 'bun'" — while the global
+ * resolves everywhere. A lint gate cannot see this, because it never assembles the dependency graph:
+ * the engine gate passed, the consumer's typecheck passed, and only the consumer's BUILD failed. */
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -21,8 +25,8 @@ const sofficeConvert = async ({
   const dir = await mkdtemp(join(tmpdir(), 'office-render-'))
   try {
     const src = join(dir, name.replaceAll(/[^\w.-]/gu, '_'))
-    await write(src, bytes)
-    const proc = spawn([soffice, '--headless', '--convert-to', format, '--outdir', dir, src], {
+    await Bun.write(src, bytes)
+    const proc = Bun.spawn([soffice, '--headless', '--convert-to', format, '--outdir', dir, src], {
       signal: AbortSignal.timeout(180_000),
       stderr: 'pipe',
       stdout: 'pipe'
@@ -33,7 +37,7 @@ const sofficeConvert = async ({
       throw new Error(`soffice convert-to ${format} failed (exit ${String(code)}): ${err.slice(0, 200)}`)
     }
     const outPath = src.replace(OFFICE_EXT, ext)
-    const out = file(outPath)
+    const out = Bun.file(outPath)
     if (!(await out.exists())) throw new Error(`soffice produced no ${ext}`)
     return new Uint8Array(await out.arrayBuffer())
   } finally {
