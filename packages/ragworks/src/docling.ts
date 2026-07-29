@@ -8,6 +8,7 @@ import type { ParseConfig } from './config'
 import type { Block, Geometry, PageDim } from './lib'
 import type { GridCell } from './table-grid'
 import { cellColorName, dominantColor, fillColor, isSaturated, nearestLabel } from './cell-color'
+import { geometryOf, markdownOf } from './domain'
 import { engineEnv as env } from './engine-config'
 import { log } from './log'
 import { resilient } from './resilience'
@@ -59,12 +60,6 @@ interface ParseResult {
 }
 type Tuple4 = [number, number, number, number]
 const RENDER_SCALE = 1.5
-const markdownOf = (blocks: readonly Block[]): string => blocks.map(b => b.text).join('\n\n')
-const geometryOf = (blocks: readonly Block[]): Geometry => {
-  if (blocks.some(b => b.cell !== undefined)) return 'grid'
-  if (blocks.some(b => b.bbox !== null)) return 'spatial'
-  return 'none'
-}
 const stubBlock = (i: number, withFail: boolean): Block => ({
   bbox: [50, 60 + i * 20, 560, 78 + i * 20],
   page: 1,
@@ -406,15 +401,5 @@ const parsePdf = async ({
   const { blocks, pages } = flatten(raw, lazyPlanes(bytes))
   return { blocks, engine: `docling-serve@${version}`, geometry: geometryOf(blocks), markdown: markdownOf(blocks), pages }
 }
-export {
-  flatten,
-  geometryOf,
-  markdownOf,
-  parsePdf,
-  stubResult,
-  swatchOf,
-  tableRowBlocks,
-  toBottomLeft,
-  withBackgroundColor
-}
+export { flatten, parsePdf, stubResult, swatchOf, tableRowBlocks, toBottomLeft, withBackgroundColor }
 export type { ParseResult, Tuple4 }

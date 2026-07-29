@@ -123,7 +123,17 @@ interface ChunkParentEdge {
   parentId: ChunkId
 }
 type FusionTechnique = (typeof fusionTechniques)[number]
-export { chunkStrategies, fusionTechniques, PUBLICATION_CAPABILITIES }
+/** A parse's renderable-geometry class, read off the blocks themselves — grid when any block carries a
+ * cell, spatial when any carries a box, else none. It decides which editor is the source of truth, so
+ * it belongs beside the types it reads and NOT inside any one parser: every engine's blocks answer it
+ * the same way, and an engine that owned it would make the answer depend on who parsed the page. */
+const geometryOf = (blocks: readonly Block[]): Geometry => {
+  if (blocks.some(b => b.cell !== undefined)) return 'grid'
+  if (blocks.some(b => b.bbox !== null)) return 'spatial'
+  return 'none'
+}
+const markdownOf = (blocks: readonly Block[]): string => blocks.map(b => b.text).join('\n\n')
+export { chunkStrategies, fusionTechniques, geometryOf, markdownOf, PUBLICATION_CAPABILITIES }
 export type {
   Anchor,
   Bbox,
