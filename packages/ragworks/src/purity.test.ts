@@ -47,12 +47,11 @@ test('the check can fail — a known adapter trips a reach, so a green run means
   const adapter = await src('docling.ts')
   expect(REACHES.filter(([, re]) => re.test(adapter)).length).toBeGreaterThan(0)
 })
-/** The main entry decides what EVERY consumer's bundle carries, so a store client re-exported there is
- * a required dependency however unused — "any vector database" dies the moment the default entry ships
- * one. The adapter stays reachable at its own subpath for a consumer who wants ours. */
-/** Every adapter reachable on its OWN subpath, listed once so a new one is covered by adding a name
- * rather than by copying a pair of tests — a guard that must be duplicated per adapter is a guard the
- * next adapter silently escapes. */
+/** The main entry decides what EVERY consumer's bundle carries, so an adapter re-exported there is a
+ * required dependency however unused — "any vector database" dies the moment the default entry ships a
+ * store client. Each adapter stays reachable at its own subpath for a consumer who wants ours, and they
+ * are listed once here so a new one is covered by adding a name rather than by copying a pair of tests:
+ * a guard that must be duplicated per adapter is a guard the next adapter silently escapes. */
 const SUBPATHS = ['opensearch', 'models']
 test.each(SUBPATHS)('the main entry re-exports no %s adapter — it is reachable only at its own subpath', async name => {
   expect((await src('index.ts')).includes(`from './${name}'`)).toBe(false)

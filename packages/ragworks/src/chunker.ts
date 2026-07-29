@@ -5,7 +5,6 @@ import { generateNKeysBetween } from 'fractional-indexing'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import type { Anchor, Block, Charspan, ChunkStrategy, Positioned, Region, RegionIndex } from './lib'
-import { semanticChunk } from './chonkie'
 import { engineEnv as env } from './engine-config'
 import { buildRegionIndex, invariant, locateChunks, positionBlocks } from './lib'
 
@@ -125,13 +124,17 @@ const proseLocated = async (
   if (!(first && last)) return []
   const runStart = first.start
   const slice = markdown.slice(runStart, last.end)
-  if (strategy === 'semantic')
-    return env.CHONKIE_URL
-      ? (await semanticChunk(slice, maxSize)).map(c => ({
-          span: [runStart + c.start, runStart + c.end] as Charspan,
-          text: c.text
-        }))
-      : splitSlice(slice, runStart, CHAR_FLOOR, CHAR_FLOOR_OVERLAP, 'character')
+  if (strategy === 'semantic') {
+    /** Reached at call time, so a consumer who never asks for semantic chunking never pulls the service
+     * client — the strategy is an optional capability rather than a dependency of chunking itself, and
+     * an unconfigured service already falls back to splitting on characters. */
+    if (!env.CHONKIE_URL) return splitSlice(slice, runStart, CHAR_FLOOR, CHAR_FLOOR_OVERLAP, 'character')
+    const { semanticChunk } = await import('./chonkie')
+    return (await semanticChunk(slice, maxSize)).map(c => ({
+      span: [runStart + c.start, runStart + c.end] as Charspan,
+      text: c.text
+    }))
+  }
   return splitSlice(slice, runStart, maxSize, overlap, isSplitStrategy(strategy) ? strategy : 'recursive')
 }
 const segmentize = (positioned: readonly Positioned[]): Segment[] => {
