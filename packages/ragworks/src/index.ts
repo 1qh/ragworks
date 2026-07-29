@@ -34,6 +34,9 @@ export type { SemanticChunk } from './chonkie'
 export { buildChunks, checksumOf, chunkerVersion } from './chunker'
 /** A third extraction engine and the converter that puts its output in the shape the grid describer reads. */
 export { datalabOcr, toChandraHtml } from './datalab'
+/** What every parse path returns — the blocks, the markdown they join to, the page dimensions and the
+ * engine that produced them — so a consumer can hold a parse from any engine in one type. */
+export type { ParseResult } from './docling'
 /** The row-level embedding cache keyed by text hash plus model, so an upstream chunk-config change
  * re-embeds only the text that actually changed. */
 export { cachedContext, cachedVectors, storeContext, storeVectors } from './embed-cache'
