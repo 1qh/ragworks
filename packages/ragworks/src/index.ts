@@ -61,7 +61,6 @@ export {
   regionsFor
 } from './lib'
 export type { Positioned, RegionIndex } from './lib'
-export { embedTexts, listModelsByRole } from './models'
 /** Office and spreadsheet documents rendered to the PDF the parse path reads. */
 export { mupdfInput, officeToPdf, xlsToXlsx } from './office-render'
 export { parseDocument } from './parse'

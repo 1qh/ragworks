@@ -50,14 +50,18 @@ test('the check can fail — a known adapter trips a reach, so a green run means
 /** The main entry decides what EVERY consumer's bundle carries, so a store client re-exported there is
  * a required dependency however unused — "any vector database" dies the moment the default entry ships
  * one. The adapter stays reachable at its own subpath for a consumer who wants ours. */
-test('the main entry re-exports no store adapter — the store is reachable only at its own subpath', async () => {
-  expect((await src('index.ts')).includes("from './opensearch'")).toBe(false)
+/** Every adapter reachable on its OWN subpath, listed once so a new one is covered by adding a name
+ * rather than by copying a pair of tests — a guard that must be duplicated per adapter is a guard the
+ * next adapter silently escapes. */
+const SUBPATHS = ['opensearch', 'models']
+test.each(SUBPATHS)('the main entry re-exports no %s adapter — it is reachable only at its own subpath', async name => {
+  expect((await src('index.ts')).includes(`from './${name}'`)).toBe(false)
 })
-test('the subpath the store moved to is a real declared entry, not a dangling promise', async () => {
+test.each(SUBPATHS)('the %s subpath is a real declared entry, not a dangling promise', async name => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as {
     exports: Record<string, unknown>
   }
-  expect(Object.keys(pkg.exports)).toContain('./opensearch')
+  expect(Object.keys(pkg.exports)).toContain(`./${name}`)
   const build = await readFile(new URL('../tsdown.config.ts', import.meta.url), 'utf8')
-  expect(build).toContain('src/opensearch.ts')
+  expect(build).toContain(`src/${name}.ts`)
 })

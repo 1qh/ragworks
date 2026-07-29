@@ -19,6 +19,10 @@
       "types": "./dist/bridge.d.mts",
       "default": "./dist/bridge.mjs"
     },
+    "./models": {
+      "types": "./dist/models.d.mts",
+      "default": "./dist/models.mjs"
+    },
     "./opensearch": {
       "types": "./dist/opensearch.d.mts",
       "default": "./dist/opensearch.mjs"
