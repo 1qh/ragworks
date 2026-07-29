@@ -77,8 +77,22 @@ const tableLocated = (rows: readonly Positioned[], caption?: string): Located[] 
   const body = rows.map(r => r.block.text).join('\n')
   const rollup: Located = { span: [first.start, last.end], text: caption ? `${caption}\n${body}` : body }
   if (rows.length === 1) return [rollup]
-  const prefix = caption ? `${caption}\n${first.block.text}` : first.block.text
-  return [rollup, ...rows.slice(1).map(r => ({ span: [r.start, r.end] as Charspan, text: `${prefix}\n${r.block.text}` }))]
+  /** A row chunk carries the first row for context ONLY where the rows do not already name their own
+   * columns. A parse that emits a separate header row gives each data row no labels of its own, so that
+   * header is the context and prefixing it is what makes the row readable. A parse whose describer writes
+   * every column and group label into the row itself gives the opposite: the row is already complete, and
+   * prefixing a sibling adds a competing row rather than context — on a table of near-identical rows its
+   * figures then appear in every passage, so a reader hands back the wrong row's number and a retriever
+   * sees passages half-composed of the same text. */
+  const prefixRow = first.block.selfLabeled === true ? '' : first.block.text
+  const prefix = [caption, prefixRow].filter(Boolean).join('\n')
+  return [
+    rollup,
+    ...rows.slice(1).map(r => ({
+      span: [r.start, r.end] as Charspan,
+      text: prefix === '' ? r.block.text : `${prefix}\n${r.block.text}`
+    }))
+  ]
 }
 const CHAR_FLOOR = 400
 const CHAR_FLOOR_OVERLAP = 120
