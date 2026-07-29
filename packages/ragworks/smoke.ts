@@ -6,6 +6,7 @@
  *
  * Run: bun smoke.ts <path-to-document>
  */
+import { file as readFile } from 'bun'
 import { buildChunks, configureEngine, parseDocument } from './src/index'
 
 const file = process.argv[2]
@@ -15,7 +16,7 @@ configureEngine({
   PROVIDERS_FILE: process.env.PROVIDERS_FILE ?? './providers.local.toml',
   SOFFICE_PATH: process.env.SOFFICE_PATH
 })
-const bytes = new Uint8Array(await Bun.file(file).arrayBuffer())
+const bytes = new Uint8Array(await readFile(file).arrayBuffer())
 const parsed = await parseDocument({ bytes, name: file.split('/').pop() ?? 'doc' })
 console.log(
   `parse    : geometry=${parsed.geometry} blocks=${String(parsed.blocks.length)} chars=${String(parsed.markdown.length)}`
