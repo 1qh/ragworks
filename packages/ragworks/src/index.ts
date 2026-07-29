@@ -78,6 +78,9 @@ export { parseDocument } from './parse'
 export { priceOf } from './pricing'
 export { lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
 export type { MmrArgs, MmrItem } from './rerank-order'
+/** Word re-spacing over a parse whose engine lost the spaces between glyphs, corroborated across
+ * engines so a single engine's guess never rewrites text the others agree on. */
+export { FUSED_MIN, respaceBlocks, respaceText } from './respace'
 /** Per-page routing and the thresholds behind it, exposed so a consumer can inspect or override the
  * decision. `routePage` reports WHY a page escalated, never only that it did. */
 export { CHAR_MIN, CTRL_MAX, MOJIBAKE_MAX, routePage, VALID_MIN, withoutMinerU } from './router'
@@ -85,3 +88,6 @@ export type { PageSignal, Route } from './router'
 /** A spreadsheet read as a grid rather than rendered, so each sheet's cells keep their row and column. */
 export { isSheet, parseSheet } from './sheet'
 export { hamming, simhash } from './simhash'
+/** Tighten a block's box onto the ink it actually contains, so a region drawn from engine geometry
+ * sits over the glyphs rather than the whitespace the engine reported around them. */
+export { INK_CONTRAST, RENDER_SCALE_INK, snapBlocksToInk } from './snap-ink'
