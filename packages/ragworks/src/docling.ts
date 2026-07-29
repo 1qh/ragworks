@@ -5,10 +5,12 @@ import { iterateDocumentItems } from '@docling/docling-core'
 import { ColorSpace, Document, Matrix } from 'mupdf'
 import type { PixelPlane } from './cell-color'
 import type { ParseConfig } from './config'
-import type { Block, Geometry, PageDim } from './lib'
+import type { ParseResult } from './domain'
+import type { Block, PageDim } from './lib'
 import type { GridCell } from './table-grid'
+import { markdownOf } from './bridge'
 import { cellColorName, dominantColor, fillColor, isSaturated, nearestLabel } from './cell-color'
-import { geometryOf, markdownOf } from './domain'
+import { geometryOf } from './domain'
 import { engineEnv as env } from './engine-config'
 import { log } from './log'
 import { resilient } from './resilience'
@@ -50,13 +52,6 @@ interface DoclingProv {
   bbox?: DoclingBbox | null
   charspan?: null | readonly number[]
   page_no?: null | number
-}
-interface ParseResult {
-  blocks: Block[]
-  engine: string
-  geometry: Geometry
-  markdown: string
-  pages: PageDim[]
 }
 type Tuple4 = [number, number, number, number]
 const RENDER_SCALE = 1.5

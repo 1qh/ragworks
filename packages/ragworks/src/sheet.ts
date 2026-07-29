@@ -1,7 +1,7 @@
 import type { Workbook } from 'exceljs'
 import exceljs from 'exceljs'
 import { Readable } from 'node:stream'
-import type { ParseResult } from './docling'
+import type { ParseResult } from './domain'
 import type { Block, PageDim } from './lib'
 import { markdownOf } from './lib'
 

@@ -123,6 +123,15 @@ interface ChunkParentEdge {
   parentId: ChunkId
 }
 type FusionTechnique = (typeof fusionTechniques)[number]
+/** What every parser returns, whoever ran it — so it sits with the types it is built from rather than
+ * inside one engine's adapter, where each new engine would import a competitor to describe itself. */
+interface ParseResult {
+  blocks: Block[]
+  engine: string
+  geometry: Geometry
+  markdown: string
+  pages: PageDim[]
+}
 /** A parse's renderable-geometry class, read off the blocks themselves — grid when any block carries a
  * cell, spatial when any carries a box, else none. It decides which editor is the source of truth, so
  * it belongs beside the types it reads and NOT inside any one parser: every engine's blocks answer it
@@ -132,8 +141,7 @@ const geometryOf = (blocks: readonly Block[]): Geometry => {
   if (blocks.some(b => b.bbox !== null)) return 'spatial'
   return 'none'
 }
-const markdownOf = (blocks: readonly Block[]): string => blocks.map(b => b.text).join('\n\n')
-export { chunkStrategies, fusionTechniques, geometryOf, markdownOf, PUBLICATION_CAPABILITIES }
+export { chunkStrategies, fusionTechniques, geometryOf, PUBLICATION_CAPABILITIES }
 export type {
   Anchor,
   Bbox,
@@ -165,6 +173,7 @@ export type {
   OwnerId,
   PageDim,
   ParseId,
+  ParseResult,
   ParseStatus,
   PoolStatus,
   ProjectId,

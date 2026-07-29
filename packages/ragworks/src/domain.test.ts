@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import type { Block } from './lib'
-import { geometryOf, markdownOf } from './domain'
+import { geometryOf } from './domain'
 /** Geometry decides which editor is the source of truth for a parse, so reading it wrong routes an
  * editable surface at a read-only one. It is ordered — a block carrying a cell makes the whole parse a
  * grid even when its siblings carry only boxes — and the ordering is the part a rewrite loses. */
@@ -16,7 +16,4 @@ test('one cell outranks every box — grid wins wherever a cell appears', () => 
 })
 test('an empty parse is none rather than a throw — a document that extracted nothing still has a class', () => {
   expect(geometryOf([])).toBe('none')
-})
-test('markdown joins on a blank line and keeps block order, never sorting or trimming to nothing', () => {
-  expect(markdownOf([block({ text: 'b' }), block({ text: 'a' })])).toBe('b\n\na')
 })

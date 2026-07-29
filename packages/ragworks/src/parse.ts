@@ -1,12 +1,13 @@
 import { ColorSpace, Document, Matrix } from 'mupdf'
 import type { ParseConfig } from './config'
-import type { ParseResult } from './docling'
+import type { ParseResult } from './domain'
 import type { Block } from './lib'
+import type { Parser } from './ports'
 import type { Route } from './router'
+import { markdownOf } from './bridge'
 import { pageBadness } from './chonkie'
 import { mapPool } from './concurrency'
-import { parsePdf } from './docling'
-import { geometryOf, markdownOf } from './domain'
+import { geometryOf } from './domain'
 import { log } from './log'
 import { defaultRefForRole } from './providers'
 import { routePage, withoutMinerU } from './router'
@@ -186,22 +187,50 @@ const snapSpatial = async (result: ParseResult, bytes: Uint8Array<ArrayBuffer>):
     return result
   }
 }
+/** Turn bytes into a parse using the consumer's own parser when they supply one, else the reference
+ * adapter. Choosing an engine is core logic and RUNNING one is an adapter, which is why the reference
+ * is reached through a dynamic import: a consumer who brings their own never pulls its client, its
+ * service or its native dependencies into their graph. A supplied parser reports itself as the engine,
+ * so a parse's lineage names who produced it rather than defaulting to ours. */
+const runParser = async (args: {
+  bytes: Uint8Array<ArrayBuffer>
+  name: string
+  onProgress?: (label: string) => void
+  options?: ParseConfig
+  parser?: Parser
+}): Promise<ParseResult> => {
+  const { bytes, name, onProgress, options, parser } = args
+  if (!parser) {
+    const { parsePdf } = await import('./docling')
+    return parsePdf({ bytes, name, onProgress, options })
+  }
+  const out = await parser.parse({ bytes, name })
+  return {
+    blocks: [...out.blocks],
+    engine: 'consumer-parser',
+    geometry: out.geometry,
+    markdown: out.markdown,
+    pages: [...out.pages]
+  }
+}
 const parseDocument = async ({
   bytes,
   config,
   name,
-  onProgress
+  onProgress,
+  parser
 }: {
   bytes: Uint8Array<ArrayBuffer>
   config?: ParseConfig
   name: string
   onProgress?: (label: string) => void
+  parser?: Parser
 }): Promise<ParseResult> => {
   if (isLegacySheet(name) && !stubbed()) {
     onProgress?.('converting spreadsheet to .xlsx for grid parsing')
     const { xlsToXlsx } = await import('./office-render')
     const xlsx = await xlsToXlsx(bytes, name)
-    return parseDocument({ bytes: xlsx, config, name: name.replace(LEGACY_SHEET_RE, '.xlsx'), onProgress })
+    return parseDocument({ bytes: xlsx, config, name: name.replace(LEGACY_SHEET_RE, '.xlsx'), onProgress, parser })
   }
   if (isSheet(name)) return parseSheet({ bytes, name, onProgress })
   if (isTextName(name)) return parseTextDocument(bytes)
@@ -213,7 +242,8 @@ const parseDocument = async ({
       bytes: pdf,
       config: config === undefined ? undefined : { ...config, pipeline: 'standard' },
       name: name.replace(OFFICE_EXT_RE, '.pdf'),
-      onProgress
+      onProgress,
+      parser
     })
   }
   if (isOfficeName(name)) {
@@ -224,12 +254,13 @@ const parseDocument = async ({
         bytes: pdf,
         config: { ...config, pipeline: 'standard' },
         name: name.replace(OFFICE_EXT_RE, '.pdf'),
-        onProgress
+        onProgress,
+        parser
       })
     }
-    return snapSpatial(await parsePdf({ bytes, name, onProgress, options: config }), bytes)
+    return snapSpatial(await runParser({ bytes, name, onProgress, options: config, parser }), bytes)
   }
-  const base = await parsePdf({ bytes, name, onProgress, options: config })
+  const base = await runParser({ bytes, name, onProgress, options: config, parser })
   if (stubbed()) return base
   return snapSpatial(await routePdf({ base, bytes, config, onProgress }), bytes)
 }
