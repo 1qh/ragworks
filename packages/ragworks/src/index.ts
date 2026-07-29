@@ -27,8 +27,10 @@
 /** The document-local colour vocabulary a grid parse carries: a fill is admitted as a signal only when
  * it is saturated enough to be deliberate, so a page's own palette names its cells. */
 export { cellColorName, colorName, dominantColor, fillColor, isSaturated, nearestLabel } from './cell-color'
+export type { PixelPlane, Rgb } from './cell-color'
 /** Semantic chunking beside the recursive splitter, and the page-quality signal the router reads. */
 export { pageBadness, semanticChunk } from './chonkie'
+export type { SemanticChunk } from './chonkie'
 export { buildChunks, checksumOf, chunkerVersion } from './chunker'
 /** A third extraction engine and the converter that puts its output in the shape the grid describer reads. */
 export { datalabOcr, toChandraHtml } from './datalab'
@@ -72,6 +74,7 @@ export { parseDocument } from './parse'
 /** The per-stage price table behind cost metering; a consumer-supplied stage is free, a provider one priced. */
 export { priceOf } from './pricing'
 export { lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
+export type { MmrArgs, MmrItem } from './rerank-order'
 /** Per-page routing and the thresholds behind it, exposed so a consumer can inspect or override the
  * decision. `routePage` reports WHY a page escalated, never only that it did. */
 export { CHAR_MIN, CTRL_MAX, MOJIBAKE_MAX, routePage, VALID_MIN, withoutMinerU } from './router'
