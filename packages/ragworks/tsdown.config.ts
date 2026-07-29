@@ -4,7 +4,7 @@ export default defineConfig({
   clean: true,
   deps: { neverBundle: ['bun'] },
   dts: true,
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/bridge.ts'],
   format: 'esm',
   outDir: 'dist'
 })
