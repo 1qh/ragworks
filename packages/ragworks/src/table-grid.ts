@@ -3,10 +3,25 @@ interface GridCell {
   header: boolean
   text: string
 }
+/** A header that SPANS columns is stored in its leftmost cell alone, every column it covers holding an
+ * empty cell, so reading a column's header straight out of the grid gives that label to one column and
+ * nothing to the rest. On a two-row header the effect is silent and severe: the group label lands on a
+ * single sub-column and every other column loses the only thing distinguishing it from the identically
+ * named column in the other group — `Q2` under one year becomes indistinguishable from `Q2` under the
+ * next, so a question naming the year cannot be answered from the row text at all. Carrying the last
+ * non-empty label rightwards restores the span, and it cannot invent one: a header row whose cells are
+ * all filled fills nothing, and a column left of every label still resolves to empty. */
+const headerCell = (grid: (GridCell | undefined)[][], row: number, col: number): string => {
+  for (let c = col; c >= 0; c -= 1) {
+    const t = grid[row]?.[c]?.text ?? ''
+    if (t !== '') return t
+  }
+  return ''
+}
 const columnHeader = (grid: (GridCell | undefined)[][], headEnd: number, col: number): string => {
   const parts: string[] = []
   for (let r = 0; r < headEnd; r += 1) {
-    const t = grid[r]?.[col]?.text ?? ''
+    const t = headerCell(grid, r, col)
     if (t !== '' && parts.at(-1) !== t) parts.push(t)
   }
   return parts.join(' · ')
