@@ -52,7 +52,7 @@ test('the check can fail — a known adapter trips a reach, so a green run means
  * store client. Each adapter stays reachable at its own subpath for a consumer who wants ours, and they
  * are listed once here so a new one is covered by adding a name rather than by copying a pair of tests:
  * a guard that must be duplicated per adapter is a guard the next adapter silently escapes. */
-const SUBPATHS = ['opensearch', 'models']
+const SUBPATHS = ['opensearch', 'models', 'office-render', 'embed-cache']
 test.each(SUBPATHS)('the main entry re-exports no %s adapter — it is reachable only at its own subpath', async name => {
   expect((await src('index.ts')).includes(`from './${name}'`)).toBe(false)
 })

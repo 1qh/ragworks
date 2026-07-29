@@ -41,7 +41,6 @@ export { datalabOcr, toChandraHtml } from './datalab'
 export type { ParseResult } from './domain'
 /** The row-level embedding cache keyed by text hash plus model, so an upstream chunk-config change
  * re-embeds only the text that actually changed. */
-export { cachedContext, cachedVectors, storeContext, storeVectors } from './embed-cache'
 export type { EngineConfig } from './engine-config'
 /** Supply the world the engine reads — service URLs and the provider registry — so nothing here
  * reaches for a database url, an auth secret or a search endpoint it never uses. */
@@ -62,7 +61,6 @@ export {
 } from './lib'
 export type { Positioned, RegionIndex } from './lib'
 /** Office and spreadsheet documents rendered to the PDF the parse path reads. */
-export { mupdfInput, officeToPdf, xlsToXlsx } from './office-render'
 export { parseDocument } from './parse'
 /** The collaborators a consumer supplies — parser, embedder, vector store, reranker, generator —
  * declared as interfaces so the engine runs against ANY of them. Only the vector half of a store is
