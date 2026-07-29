@@ -236,6 +236,7 @@ const tableRowBlocks = (args: {
       bbox: clipToBand(unionBbox(origin, height), rowBand(rowCells, height)),
       kind: 'table',
       page,
+      selfLabeled: true,
       text: line
     })
   }

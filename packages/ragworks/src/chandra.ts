@@ -236,7 +236,8 @@ const pageBlocks = ({
         const table = div.querySelector('table')
         if (table) {
           const rows = tableToRows(table)
-          if (rows.length > 0) return rows.map(row => ({ bbox, kind: 'table', page: pageNo, text: row }))
+          if (rows.length > 0)
+            return rows.map(row => ({ bbox, kind: 'table', page: pageNo, selfLabeled: true, text: row }))
         }
         const kind = attr(div, 'data-label') || 'text'
         return rowsOf(div.text).map(row => ({ bbox, kind, page: pageNo, text: row }))
