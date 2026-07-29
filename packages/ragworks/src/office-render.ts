@@ -1,3 +1,4 @@
+import { file, spawn, write } from 'bun'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -20,8 +21,8 @@ const sofficeConvert = async ({
   const dir = await mkdtemp(join(tmpdir(), 'office-render-'))
   try {
     const src = join(dir, name.replaceAll(/[^\w.-]/gu, '_'))
-    await Bun.write(src, bytes)
-    const proc = Bun.spawn([soffice, '--headless', '--convert-to', format, '--outdir', dir, src], {
+    await write(src, bytes)
+    const proc = spawn([soffice, '--headless', '--convert-to', format, '--outdir', dir, src], {
       signal: AbortSignal.timeout(180_000),
       stderr: 'pipe',
       stdout: 'pipe'
@@ -32,7 +33,7 @@ const sofficeConvert = async ({
       throw new Error(`soffice convert-to ${format} failed (exit ${String(code)}): ${err.slice(0, 200)}`)
     }
     const outPath = src.replace(OFFICE_EXT, ext)
-    const out = Bun.file(outPath)
+    const out = file(outPath)
     if (!(await out.exists())) throw new Error(`soffice produced no ${ext}`)
     return new Uint8Array(await out.arrayBuffer())
   } finally {

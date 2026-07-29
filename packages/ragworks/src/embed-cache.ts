@@ -1,16 +1,17 @@
+import { RedisClient } from 'bun'
 import { createHash } from 'node:crypto'
 import { engineEnv as env } from './engine-config'
 import { log } from './log'
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30
-let client: Bun.RedisClient | null = null
+let client: null | RedisClient = null
 let tried = false
-const redis = (): Bun.RedisClient | null => {
+const redis = (): null | RedisClient => {
   if (env.REDIS_URL === undefined) return null
   if (!(client || tried)) {
     tried = true
     try {
-      client = new Bun.RedisClient(env.REDIS_URL)
+      client = new RedisClient(env.REDIS_URL)
     } catch (error) {
       log.warn({ error: error instanceof Error ? error.message : String(error) }, 'embed cache redis init failed')
     }

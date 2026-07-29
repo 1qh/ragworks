@@ -21,7 +21,7 @@
     "pre-commit": "sh up.sh && git add -u"
   },
   "devDependencies": {
-    "fast-check": "^4.9.0",
+    "fast-check": "latest",
     "lintmax": "latest",
     "sherif": "latest",
     "simple-git-hooks": "latest",
