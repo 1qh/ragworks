@@ -64,17 +64,6 @@ export type { Positioned, RegionIndex } from './lib'
 export { embedTexts, listModelsByRole } from './models'
 /** Office and spreadsheet documents rendered to the PDF the parse path reads. */
 export { mupdfInput, officeToPdf, xlsToXlsx } from './office-render'
-export {
-  bm25Rank,
-  doubleWeights,
-  ensureIndex,
-  ensureVectorField,
-  hybridSearch,
-  indexChunkDoc,
-  knnSearch,
-  refresh,
-  searchBm25
-} from './opensearch'
 export { parseDocument } from './parse'
 /** The collaborators a consumer supplies — parser, embedder, vector store, reranker, generator —
  * declared as interfaces so the engine runs against ANY of them. Only the vector half of a store is

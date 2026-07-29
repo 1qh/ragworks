@@ -8,9 +8,9 @@ import { engineEnv as env } from './engine-config'
 import { log } from './log'
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30
-let client: null | Bun.RedisClient = null
+let client: Bun.RedisClient | null = null
 let tried = false
-const redis = (): null | Bun.RedisClient => {
+const redis = (): Bun.RedisClient | null => {
   if (env.REDIS_URL === undefined) return null
   if (!(client || tried)) {
     tried = true

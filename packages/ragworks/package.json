@@ -18,6 +18,10 @@
     "./bridge": {
       "types": "./dist/bridge.d.mts",
       "default": "./dist/bridge.mjs"
+    },
+    "./opensearch": {
+      "types": "./dist/opensearch.d.mts",
+      "default": "./dist/opensearch.mjs"
     }
   },
   "main": "./dist/index.mjs",

@@ -47,3 +47,17 @@ test('the check can fail — a known adapter trips a reach, so a green run means
   const adapter = await src('docling.ts')
   expect(REACHES.filter(([, re]) => re.test(adapter)).length).toBeGreaterThan(0)
 })
+/** The main entry decides what EVERY consumer's bundle carries, so a store client re-exported there is
+ * a required dependency however unused — "any vector database" dies the moment the default entry ships
+ * one. The adapter stays reachable at its own subpath for a consumer who wants ours. */
+test('the main entry re-exports no store adapter — the store is reachable only at its own subpath', async () => {
+  expect((await src('index.ts')).includes("from './opensearch'")).toBe(false)
+})
+test('the subpath the store moved to is a real declared entry, not a dangling promise', async () => {
+  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as {
+    exports: Record<string, unknown>
+  }
+  expect(Object.keys(pkg.exports)).toContain('./opensearch')
+  const build = await readFile(new URL('../tsdown.config.ts', import.meta.url), 'utf8')
+  expect(build).toContain('src/opensearch.ts')
+})
