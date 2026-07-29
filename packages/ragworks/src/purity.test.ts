@@ -57,6 +57,29 @@ const SUBPATHS = ['opensearch', 'models']
 test.each(SUBPATHS)('the main entry re-exports no %s adapter — it is reachable only at its own subpath', async name => {
   expect((await src('index.ts')).includes(`from './${name}'`)).toBe(false)
 })
+/** CORE is hand-written, so on its own it is an ALLOWLIST — and an allowlist protects only what
+ * somebody remembered to list. Nothing stops a module being quietly dropped from it, which reads in a
+ * diff as one deleted line and removes that module from every check above. So the pure set is COMPUTED
+ * and every member must be accounted for: listed as core, or named here with the reason it is not part
+ * of the published pure surface. Dropping a module from CORE then fails until it is named here, where
+ * it is visible. */
+const NOT_CORE_SURFACE: Record<string, string> = {
+  'config.ts': 'the shape a host supplies, not a capability the core computes',
+  'index.ts': 'the barrel — it re-exports adapters by design',
+  'log.ts': 'plumbing a host supplies for itself',
+  'parse.ts': 'orchestration that reaches its adapters dynamically',
+  'reconcile.ts': 'reaches a renderer through a dynamic import',
+  'sheet.ts': 'reads a workbook through a reader dependency',
+  'test-base.ts': 'a test helper, never shipped as a capability',
+  'upload.ts': 'plumbing a host supplies for itself'
+}
+test('every module that reaches nothing is accounted for — CORE cannot shrink unnoticed', async () => {
+  const files = (await readdir(new URL('.', import.meta.url))).filter(f => f.endsWith('.ts') && !f.endsWith('.test.ts'))
+  const read = await Promise.all(files.map(async f => ({ name: f, text: await src(f) })))
+  const pure = read.filter(m => !REACHES.some(([, re]) => re.test(m.text))).map(m => m.name)
+  expect(pure.length).toBeGreaterThan(10)
+  expect(pure.filter(f => !(CORE.includes(f) || f in NOT_CORE_SURFACE))).toEqual([])
+})
 test.each(SUBPATHS)('the %s subpath is a real declared entry, not a dangling promise', async name => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as {
     exports: Record<string, unknown>
