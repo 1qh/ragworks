@@ -18,6 +18,7 @@ const CORE = [
   'lib.ts',
   'metering.ts',
   'pricing.ts',
+  'ports.ts',
   'rerank-order.ts',
   'resilience.ts',
   'respace.ts',

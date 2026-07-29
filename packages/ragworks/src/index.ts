@@ -1,11 +1,13 @@
 /** The RAG engine minus the store: a document in, retrievable chunks with provenance out, and the
  * retrieval logic that ranks them.
  *
- * This is deliberately NOT a whole RAG engine. Retrieval — query understanding, hybrid search,
- * fusion, reranking and the graph index — needs a store interface and a record store, and neither
- * belongs here. What this package owns is everything upstream of the index: deciding how each page
- * should be read, reading it, splitting it, and keeping every chunk pointing back at the pixels it
- * came from.
+ * The shape is a PURE core plus PORTS. The core computes and reaches for nothing — chunking, the
+ * offset-to-region provenance bridge, per-page routing decisions, fusion and rerank ordering,
+ * near-duplicate detection — so it runs in a browser, a worker or a test with no services standing.
+ * Everything it cannot compute for itself is declared as an interface a consumer satisfies: a parser,
+ * an embedder, a vector store, a reranker, a generator. That is what lets it run against ANY vector
+ * database rather than the one its author happens to deploy, and only the VECTOR half of a store is
+ * required — a store with no keyword index is a legitimate store, and the core fuses for it.
  *
  * Each step stands alone, so a consumer that already parses its own documents can take only the
  * chunker, and one that already chunks can take only the provenance bridge:
@@ -74,6 +76,11 @@ export {
   searchBm25
 } from './opensearch'
 export { parseDocument } from './parse'
+/** The collaborators a consumer supplies — parser, embedder, vector store, reranker, generator —
+ * declared as interfaces so the engine runs against ANY of them. Only the vector half of a store is
+ * required; keyword and hybrid search are optional capabilities, and the core fuses for a store that
+ * lacks them rather than refusing to work with it. */
+export type { Embedder, Generator, Hit, Parser, Ports, Reranker, SearchScope, StoredChunk, VectorStore } from './ports'
 /** The per-stage price table behind cost metering; a consumer-supplied stage is free, a provider one priced. */
 export { priceOf } from './pricing'
 export { lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
