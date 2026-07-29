@@ -19,9 +19,17 @@
       "types": "./dist/bridge.d.mts",
       "default": "./dist/bridge.mjs"
     },
+    "./embed-cache": {
+      "types": "./dist/embed-cache.d.mts",
+      "default": "./dist/embed-cache.mjs"
+    },
     "./models": {
       "types": "./dist/models.d.mts",
       "default": "./dist/models.mjs"
+    },
+    "./office-render": {
+      "types": "./dist/office-render.d.mts",
+      "default": "./dist/office-render.mjs"
     },
     "./opensearch": {
       "types": "./dist/opensearch.d.mts",
