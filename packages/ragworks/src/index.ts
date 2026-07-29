@@ -79,4 +79,6 @@ export type { MmrArgs, MmrItem } from './rerank-order'
  * decision. `routePage` reports WHY a page escalated, never only that it did. */
 export { CHAR_MIN, CTRL_MAX, MOJIBAKE_MAX, routePage, VALID_MIN, withoutMinerU } from './router'
 export type { PageSignal, Route } from './router'
+/** A spreadsheet read as a grid rather than rendered, so each sheet's cells keep their row and column. */
+export { isSheet, parseSheet } from './sheet'
 export { hamming, simhash } from './simhash'
