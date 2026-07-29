@@ -27,7 +27,14 @@ const provider = new BasicTracerProvider({
   spanProcessors: processors
 })
 trace.setGlobalTracerProvider(provider)
-const tracer = trace.getTracer('rag-pipeline')
+/** Take the tracer from OUR provider rather than the global one. Registering a global provider is a
+ * first-writer-wins operation: whoever registers first keeps it and every later registration is
+ * discarded with a warning, so reading the tracer back from the global returns whichever provider
+ * won — a provider whose processors do not include the bounded collector above, leaving every stage
+ * span recorded nowhere. A library is the side that loses this race, because the host application
+ * almost always registers its own provider first. It depends only on module load ORDER, so it is
+ * invisible until something unrelated changes that order, and it fails as an ABSENCE, never an error. */
+const tracer = provider.getTracer('rag-pipeline')
 const recordStage = (args: {
   costEstimateUsd?: number
   metric: StageMetric
