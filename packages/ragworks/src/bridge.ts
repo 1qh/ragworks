@@ -1,5 +1,7 @@
 import IntervalTree from '@flatten-js/interval-tree'
 import type { Block, Charspan, Region } from './lib'
+import type { GridCell } from './table-grid'
+import { describeGrid } from './table-grid'
 
 interface Positioned {
   readonly block: Block
@@ -114,5 +116,14 @@ const locateChunks = (text: string, chunks: readonly string[], overlap = 0): Cha
   }
   return spans
 }
-export { blockChunks, buildRegionIndex, locateChunks, markdownOf, MIN_REGION_WIDTH, positionBlocks, regionsFor }
-export type { Positioned, RegionIndex }
+export {
+  blockChunks,
+  buildRegionIndex,
+  describeGrid,
+  locateChunks,
+  markdownOf,
+  MIN_REGION_WIDTH,
+  positionBlocks,
+  regionsFor
+}
+export type { GridCell, Positioned, RegionIndex }
