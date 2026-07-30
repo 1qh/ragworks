@@ -20,6 +20,7 @@ const CORE = [
   'pricing.ts',
   'ports.ts',
   'rerank-order.ts',
+  'retrieve.ts',
   'resilience.ts',
   'respace.ts',
   'router.ts',

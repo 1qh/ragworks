@@ -74,6 +74,10 @@ export type { MmrArgs, MmrItem } from './rerank-order'
 /** Word re-spacing over a parse whose engine lost the spaces between glyphs, corroborated across
  * engines so a single engine's guess never rewrites text the others agree on. */
 export { FUSED_MIN, respaceBlocks, respaceText } from './respace'
+/** Retrieval over a consumer's OWN store: the vector half is required, keyword search is optional, and
+ * the core fuses the two legs itself so a store without a text index is still a store this works with. */
+export { retrieve } from './retrieve'
+export type { RetrieveArgs } from './retrieve'
 /** Per-page routing and the thresholds behind it, exposed so a consumer can inspect or override the
  * decision. `routePage` reports WHY a page escalated, never only that it did. */
 export { CHAR_MIN, CTRL_MAX, MOJIBAKE_MAX, routePage, VALID_MIN, withoutMinerU } from './router'
