@@ -10,7 +10,8 @@ export default defineConfig({
     'src/opensearch.ts',
     'src/models.ts',
     'src/office-render.ts',
-    'src/embed-cache.ts'
+    'src/embed-cache.ts',
+    'src/region.ts'
   ],
   format: 'esm',
   outDir: 'dist'

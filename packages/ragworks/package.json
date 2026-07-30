@@ -34,6 +34,10 @@
     "./opensearch": {
       "types": "./dist/opensearch.d.mts",
       "default": "./dist/opensearch.mjs"
+    },
+    "./region": {
+      "types": "./dist/region.d.mts",
+      "default": "./dist/region.mjs"
     }
   },
   "main": "./dist/index.mjs",
