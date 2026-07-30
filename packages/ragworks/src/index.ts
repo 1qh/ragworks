@@ -45,6 +45,16 @@ export type { EngineConfig } from './engine-config'
 /** Supply the world the engine reads — service URLs and the provider registry — so nothing here
  * reaches for a database url, an auth secret or a search endpoint it never uses. */
 export { configureEngine } from './engine-config'
+export { connectedCommunities, dedupeEntities, isDegenerate, normalizeName, parseExtraction } from './graph-core'
+export type { Community, Extraction, GraphEdge, GraphEntity } from './graph-core'
+export {
+  communityText,
+  cosine,
+  entityText,
+  rankBySimilarity,
+  relationshipText,
+  SIMILARITY_FLOOR
+} from './graph-vector'
 /** The domain vocabulary every stage speaks. `Geometry` decides which anchors are legal: a spatial
  * parse admits region anchors, a grid parse admits cell anchors, and a text-only parse admits neither. */
 export type { Anchor, Bbox, Block, Charspan, ChunkStrategy, Geometry, PageDim, Region } from './lib'

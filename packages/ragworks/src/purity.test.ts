@@ -14,6 +14,8 @@ const CORE = [
   'cell-color.ts',
   'concurrency.ts',
   'domain.ts',
+  'graph-core.ts',
+  'graph-vector.ts',
   'invariant.ts',
   'lib.ts',
   'metering.ts',
