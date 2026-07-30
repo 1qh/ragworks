@@ -81,5 +81,79 @@ const maximalMarginalRelevance = ({ items, lambda, topK }: MmrArgs): MmrItem[] =
   }
   return selected
 }
-export { lostInTheMiddle, maximalMarginalRelevance }
-export type { MmrArgs, MmrItem }
+interface Grouped {
+  byParent: Map<string, Retrieved[]>
+  passthrough: Retrieved[]
+}
+interface ParentInfo {
+  childCount: number
+  text: string
+}
+interface Retrieved {
+  chunkId: string
+  parentId: null | string
+  score: number
+  text: string
+}
+const clampRatio = (value: number): number => {
+  if (!Number.isFinite(value)) return 0
+  return Math.min(1, Math.max(0, value))
+}
+const dedupe = (retrieved: readonly Retrieved[]): Retrieved[] => {
+  const seen = new Set<string>()
+  const out: Retrieved[] = []
+  for (const item of retrieved)
+    if (!seen.has(item.chunkId)) {
+      seen.add(item.chunkId)
+      out.push(item)
+    }
+  return out
+}
+const groupByParent = (unique: readonly Retrieved[], parents: ReadonlyMap<string, ParentInfo>): Grouped => {
+  const byParent = new Map<string, Retrieved[]>()
+  const passthrough: Retrieved[] = []
+  for (const item of unique) {
+    const { parentId } = item
+    if (parentId === null || !parents.has(parentId)) passthrough.push(item)
+    else {
+      const bucket = byParent.get(parentId)
+      if (bucket === undefined) byParent.set(parentId, [item])
+      else bucket.push(item)
+    }
+  }
+  return { byParent, passthrough }
+}
+const maxScoreOf = (children: readonly Retrieved[]): number => {
+  let best = Number.NEGATIVE_INFINITY
+  for (const child of children) if (child.score > best) best = child.score
+  return best
+}
+const collapsed = (args: {
+  children: readonly Retrieved[]
+  info: ParentInfo | undefined
+  parentId: string
+  ratio: number
+}): Retrieved[] => {
+  const { children, info, parentId, ratio } = args
+  if (info === undefined || info.childCount <= 0 || children.length / info.childCount < ratio) return [...children]
+  return [{ chunkId: parentId, parentId: null, score: maxScoreOf(children), text: info.text }]
+}
+const autoMerge = ({
+  minChildRatio,
+  parents,
+  retrieved
+}: {
+  minChildRatio: number
+  parents: ReadonlyMap<string, ParentInfo>
+  retrieved: readonly Retrieved[]
+}): Retrieved[] => {
+  const ratio = clampRatio(minChildRatio)
+  const { byParent, passthrough } = groupByParent(dedupe(retrieved), parents)
+  const out: Retrieved[] = [...passthrough]
+  for (const [parentId, children] of byParent)
+    out.push(...collapsed({ children, info: parents.get(parentId), parentId, ratio }))
+  out.sort((a, b) => b.score - a.score)
+  return out
+}
+export { autoMerge, lostInTheMiddle, maximalMarginalRelevance }
+export type { MmrArgs, MmrItem, ParentInfo, Retrieved }

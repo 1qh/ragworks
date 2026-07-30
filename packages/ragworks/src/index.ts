@@ -69,8 +69,8 @@ export { parseDocument } from './parse'
 export type { Embedder, Generator, Hit, Parser, Ports, Reranker, SearchScope, StoredChunk, VectorStore } from './ports'
 /** The per-stage price table behind cost metering; a consumer-supplied stage is free, a provider one priced. */
 export { priceOf } from './pricing'
-export { lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
-export type { MmrArgs, MmrItem } from './rerank-order'
+export { autoMerge, lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
+export type { MmrArgs, MmrItem, ParentInfo, Retrieved } from './rerank-order'
 /** Word re-spacing over a parse whose engine lost the spaces between glyphs, corroborated across
  * engines so a single engine's guess never rewrites text the others agree on. */
 export { FUSED_MIN, respaceBlocks, respaceText } from './respace'
