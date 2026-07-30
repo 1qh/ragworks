@@ -10,18 +10,25 @@ import { ocrCropText, renderCrop, requireVlm } from './chandra'
  * so the surface would harden around today's implementation of a thing whose implementation is exactly
  * what should stay free to move.
  *
- * The vision model is REQUIRED here rather than optional, since a region is resolved from pixels; a
- * caller whose page has a usable text layer reads the span from the parse instead and never arrives. */
+ * A region is resolved from pixels, so a vision model is required to read one — but the reference is
+ * accepted as POSSIBLY ABSENT and refused here, because a deployment can legitimately run without a
+ * vision model configured and the caller then holds an optional value. Declaring it non-optional would
+ * push that check outward to every call site, which is how one clear failure becomes several
+ * inconsistent ones; the capability that needs the model is the right place to insist on it. */
 const readRegion = async (args: {
   readonly bbox: Bbox
   readonly bytes: Uint8Array<ArrayBuffer>
   readonly contentType: string
   /** One-based, matching how a page is numbered everywhere a reader sees one. */
   readonly page: number
-  readonly vlm: string
+  /** Absent means no vision model is configured, which this refuses with a named error. */
+  readonly vlm: string | undefined
 }): Promise<string> => {
   const { bbox, bytes, contentType, page, vlm } = args
-  const text = await ocrCropText(renderCrop({ bbox, bytes, contentType, pageIndex: page - 1 }), requireVlm(vlm))
+  /** Resolved FIRST and deliberately not inline: as an argument it evaluates after the crop, so a
+   * caller with no model configured would pay for a full page render before being refused. */
+  const model = requireVlm(vlm)
+  const text = await ocrCropText(renderCrop({ bbox, bytes, contentType, pageIndex: page - 1 }), model)
   return text
 }
 export { readRegion }
