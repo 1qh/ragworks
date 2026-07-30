@@ -12,7 +12,9 @@ export default defineConfig({
     'src/office-render.ts',
     'src/embed-cache.ts',
     'src/region.ts',
-    'src/vlm.ts'
+    'src/vlm.ts',
+    'src/digital.ts',
+    'src/geometry.ts'
   ],
   format: 'esm',
   outDir: 'dist'

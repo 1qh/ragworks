@@ -19,9 +19,17 @@
       "types": "./dist/bridge.d.mts",
       "default": "./dist/bridge.mjs"
     },
+    "./digital": {
+      "types": "./dist/digital.d.mts",
+      "default": "./dist/digital.mjs"
+    },
     "./embed-cache": {
       "types": "./dist/embed-cache.d.mts",
       "default": "./dist/embed-cache.mjs"
+    },
+    "./geometry": {
+      "types": "./dist/geometry.d.mts",
+      "default": "./dist/geometry.mjs"
     },
     "./models": {
       "types": "./dist/models.d.mts",

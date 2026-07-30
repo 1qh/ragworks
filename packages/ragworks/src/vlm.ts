@@ -1,4 +1,4 @@
-import { pageBlocks, parsePdfVlm } from './chandra'
+import { ocrPage, pageBlocks, parsePdfVlm, requireVlm } from './chandra'
 /** The vision-language parse engine as an optional adapter, beside the digital and structure engines.
  *
  * Two capabilities rather than the module behind them: parse a whole document by reading its rendered
@@ -9,4 +9,4 @@ import { pageBlocks, parsePdfVlm } from './chandra'
  * It lives at its own entry because it needs a vision model to run: a consumer with no such model
  * takes the digital path and never resolves this, which is the whole point of an adapter being
  * optional rather than a dependency of the core. */
-export { pageBlocks, parsePdfVlm }
+export { ocrPage, pageBlocks, parsePdfVlm, requireVlm }
