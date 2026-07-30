@@ -1,12 +1,14 @@
-# rag-ingest
+# ragworks
 
 Turn a document into retrievable chunks that still know where they came from.
 
-Most RAG stacks treat ingest as a preamble: extract some text, split it every N characters, embed. That is where the answers are lost. A scanned page returns nothing, a table’s value slides one column, and a citation points at a passage no reader can find on the page. This package is the ingest half done properly — per-page engine routing, parsing, chunking, and an offset-to-region bridge that keeps every chunk anchored to the pixels it came from.
+Most RAG stacks treat ingest as a preamble: extract some text, split it every N characters, embed. That is where the answers are lost. A scanned page returns nothing, a table’s value slides one column, and a citation points at a passage no reader can find on the page. This package does that half properly — per-page engine routing, parsing, chunking, and an offset-to-region bridge that keeps every chunk anchored to the pixels it came from — and then retrieves over the store you already have.
 
-## What this is not
+## What it does not bring
 
-It is not a whole RAG engine, and the name says so. Retrieval — query understanding, hybrid search, fusion, reranking, the graph index — needs a store interface and a record store, and neither belongs in a library like this. Bring your own index; this package decides what goes into it.
+No store, no record model, no servers, no models. `retrieve` takes your index as a **port**: implement a `search` that returns hits for a vector, add `keywordSearch` if your store has a text index, and hybrid fusion, near-duplicate filtering and optional reranking happen in the core rather than in your database. A store with no keyword side degrades to vector-only instead of failing, because most stores have no text index and demanding one would exclude them.
+
+What stays yours is what genuinely needs a record store — parse versions, lineage, metering, and the documents themselves. The core computes; it reaches for nothing. Every collaborator that touches a network — the parser, the embedder, the reranker, the store — arrives as an argument, so the whole retrieval path is drivable in a test with three functions and no services standing.
 
 ## Why the ingest half is worth its own package
 
@@ -21,7 +23,7 @@ It is not a whole RAG engine, and the name says so. Retrieval — query understa
 bun add ragworks      # or npm / pnpm
 ```
 
-Needs a [docling](https://github.com/docling-project/docling) service for parsing, and a provider registry file naming your OpenAI-compatible endpoints for embedding. Both are configuration, not vendors: any OpenAI-compatible host works, local or managed.
+Bring only what you use. The parse path reaches a [docling](https://github.com/docling-project/docling) service through its reference adapter unless you pass a `Parser` of your own; embedding reads a provider registry file naming your OpenAI-compatible endpoints. Neither is a vendor lock — every adapter ships at its own subpath (`ragworks/opensearch`, `ragworks/models`, …) and the main entry re-exports none of them, so a consumer bringing their own store or parser never pulls ours into their bundle.
 
 ## Use
 

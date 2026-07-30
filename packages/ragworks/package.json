@@ -1,6 +1,6 @@
 {
   "name": "ragworks",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
   "repository": {
     "type": "git",
