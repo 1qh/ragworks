@@ -52,7 +52,7 @@ test('the check can fail — a known adapter trips a reach, so a green run means
  * store client. Each adapter stays reachable at its own subpath for a consumer who wants ours, and they
  * are listed once here so a new one is covered by adding a name rather than by copying a pair of tests:
  * a guard that must be duplicated per adapter is a guard the next adapter silently escapes. */
-const SUBPATHS = ['opensearch', 'models', 'office-render', 'embed-cache', 'region']
+const SUBPATHS = ['opensearch', 'models', 'office-render', 'embed-cache', 'region', 'vlm']
 test.each(SUBPATHS)('the main entry re-exports no %s adapter — it is reachable only at its own subpath', async name => {
   expect((await src('index.ts')).includes(`from './${name}'`)).toBe(false)
 })
@@ -71,7 +71,8 @@ const NOT_CORE_SURFACE: Record<string, string> = {
   'region.ts': 'wires an adapter into one capability rather than computing anything itself',
   'sheet.ts': 'reads a workbook through a reader dependency',
   'test-base.ts': 'a test helper, never shipped as a capability',
-  'upload.ts': 'plumbing a host supplies for itself'
+  'upload.ts': 'plumbing a host supplies for itself',
+  'vlm.ts': 'names an adapter capability rather than computing anything itself'
 }
 test('every module that reaches nothing is accounted for — CORE cannot shrink unnoticed', async () => {
   const files = (await readdir(new URL('.', import.meta.url))).filter(f => f.endsWith('.ts') && !f.endsWith('.test.ts'))

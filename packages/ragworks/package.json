@@ -38,6 +38,10 @@
     "./region": {
       "types": "./dist/region.d.mts",
       "default": "./dist/region.mjs"
+    },
+    "./vlm": {
+      "types": "./dist/vlm.d.mts",
+      "default": "./dist/vlm.mjs"
     }
   },
   "main": "./dist/index.mjs",

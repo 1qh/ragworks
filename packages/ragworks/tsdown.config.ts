@@ -11,7 +11,8 @@ export default defineConfig({
     'src/models.ts',
     'src/office-render.ts',
     'src/embed-cache.ts',
-    'src/region.ts'
+    'src/region.ts',
+    'src/vlm.ts'
   ],
   format: 'esm',
   outDir: 'dist'
