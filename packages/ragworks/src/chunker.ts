@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/complexity/useMaxParams: positional chunk-split signatures */
 /* eslint-disable @typescript-eslint/max-params */
-import { MDocument } from '@mastra/rag'
 import { generateNKeysBetween } from 'fractional-indexing'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
@@ -102,6 +101,12 @@ const splitSlice = async (
   overlap: number,
   strategy: SplitStrategy
 ): Promise<Located[]> => {
+  /** Loaded at CALL time, never at import: a static import makes every consumer of the main entry
+   * load this dependency and its transitive tree just to import the engine, so a consumer that never
+   * selects this strategy still pays for it — and a version conflict anywhere in that tree crashes
+   * the import itself rather than the call. The version string above stays eager because it reads
+   * package.json alone and never executes the module. */
+  const { MDocument } = await import('@mastra/rag')
   const chunks = await MDocument.fromText(slice).chunk({ maxSize, overlap, strategy })
   const texts = chunks.map(c => c.text)
   const spans = locateChunks(slice, texts, overlap)
