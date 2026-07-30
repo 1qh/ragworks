@@ -33,7 +33,7 @@ export type { PixelPlane, Rgb } from './cell-color'
 /** Semantic chunking beside the recursive splitter, and the page-quality signal the router reads. */
 export { pageBadness, semanticChunk } from './chonkie'
 export type { SemanticChunk } from './chonkie'
-export { buildChunks, checksumOf, chunkerVersion } from './chunker'
+export { buildChunks, checksumOf, chunkerVersion, remapSpan } from './chunker'
 /** A third extraction engine and the converter that puts its output in the shape the grid describer reads. */
 export { datalabOcr, toChandraHtml } from './datalab'
 /** What every parse path returns — the blocks, the markdown they join to, the page dimensions and the
