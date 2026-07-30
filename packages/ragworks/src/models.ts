@@ -13,12 +13,38 @@ import { vertexEmbed, vertexFetch } from './vertex'
 // oxlint-disable-next-line unicorn/max-nested-calls
 const providerModelsSchema = z.object({ data: z.array(z.object({ id: z.string() })) })
 const stubVector = (text: string) => Array.from({ length: 8 }, (_, i) => ((text.length + i) % 7) / 7)
-const sdk = (provider: Provider) =>
-  createOpenAICompatible(
+/** Merges a provider's declared chat_body into every chat request it serves. One wrapper rather than a
+ * parameter threaded through each call: the fields belong to the SERVER, so a call site has no business
+ * knowing them, and a knob added to a provider file reaches every stage without touching code. */
+const withChatBody = (extra: Record<string, unknown>): typeof fetch =>
+  /** `typeof fetch` carries a `preconnect` member under some runtimes, so a bare arrow does not satisfy it
+   * — delegate that to the real fetch rather than widening the type and losing the contract. */
+  Object.assign(
+    async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]): Promise<Response> => {
+      if (init?.body === undefined || typeof init.body !== 'string') {
+        const passthrough = await fetch(input, init)
+        return passthrough
+      }
+      const body = JSON.parse(init.body) as Record<string, unknown>
+      const merged = await fetch(input, { ...init, body: JSON.stringify({ ...body, ...extra }) })
+      return merged
+    },
+    { preconnect: fetch.preconnect }
+  )
+const sdk = (provider: Provider) => {
+  const extra = provider.chatBody
+  return createOpenAICompatible(
     provider.auth === 'vertex'
       ? { baseURL: provider.baseUrl, fetch: vertexFetch, includeUsage: true, name: provider.id }
-      : { apiKey: provider.key, baseURL: provider.baseUrl, includeUsage: true, name: provider.id }
+      : {
+          apiKey: provider.key,
+          baseURL: provider.baseUrl,
+          includeUsage: true,
+          name: provider.id,
+          ...(extra ? { fetch: withChatBody(extra) } : {})
+        }
   )
+}
 interface Identity {
   baseUrl: string
   provider: string

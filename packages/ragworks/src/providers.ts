@@ -22,6 +22,11 @@ const providerSchema = z
   .object({
     auth: z.enum(['vertex', 'datalab']).optional(),
     base_url: z.url().optional(),
+    /** Extra fields merged into every chat request this provider serves. A server-side knob a model needs
+     * belongs to the deployment that serves it, not to a call site: a reasoning model asked for a document
+     * figure has to be told not to think, and hardcoding that per model would put one server's quirk in the
+     * engine. Declared here, any provider carries whatever its own server understands. */
+    chat_body: z.record(z.string(), z.unknown()).optional(),
     id: z
       .string()
       .min(1)
@@ -42,6 +47,7 @@ const providerSchema = z
   .transform(p => ({
     auth: p.auth,
     baseUrl: p.auth === 'vertex' ? openApiBase() : normalizeBaseUrl(p.base_url ?? ''),
+    chatBody: p.chat_body,
     id: p.id,
     key: p.auth === 'vertex' ? 'none' : resolveKey(p.key_env),
     metered: p.metered ?? false,

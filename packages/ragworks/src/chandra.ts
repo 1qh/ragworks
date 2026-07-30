@@ -70,6 +70,10 @@ const vlmResponseSchema = z.object({
 interface VlmModel {
   auth?: 'datalab' | 'vertex'
   baseUrl: string
+  /** Carried from the provider so a hand-built request honours the same server knob the sdk path does —
+   * a capability declared once and read on only one of two call paths is a capability that silently does
+   * nothing wherever the other path runs. */
+  chatBody?: Record<string, unknown>
   key: string
   metered: boolean
   model: string
@@ -78,7 +82,15 @@ interface VlmModel {
 const requireVlm = (ref: string | undefined): VlmModel => {
   if (!ref) throw new Error('a vlm-role model is required for the vlm parse pipeline')
   const { model, provider, wire } = resolveRef(ref, 'vlm')
-  return { auth: provider.auth, baseUrl: provider.baseUrl, key: provider.key, metered: provider.metered, model, wire }
+  return {
+    auth: provider.auth,
+    baseUrl: provider.baseUrl,
+    chatBody: provider.chatBody,
+    key: provider.key,
+    metered: provider.metered,
+    model,
+    wire
+  }
 }
 const IM_END = '<|im_end|>'
 const CHAT_TOKENS = /<\|im_start\|>\w*|<\|im_end\|>|<think>[\s\S]*?<\/think>/gu
@@ -90,6 +102,7 @@ const chatCompletionPage = async (pngBase64: string, vlm: VlmModel): Promise<str
   const auth = vlm.auth === 'vertex' ? await vertexAuthHeader() : authHeaders(vlm)
   const res = await fetch(`${vlm.baseUrl}/chat/completions`, {
     body: JSON.stringify({
+      ...vlm.chatBody,
       max_tokens: 8192,
       messages: [
         {
