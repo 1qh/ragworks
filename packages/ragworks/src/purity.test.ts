@@ -24,6 +24,7 @@ const CORE = [
   'mcp.ts',
   'metering.ts',
   'pricing.ts',
+  'prompts.ts',
   'ports.ts',
   'rerank-order.ts',
   'retrieve.ts',

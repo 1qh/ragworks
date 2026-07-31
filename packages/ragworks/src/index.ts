@@ -88,6 +88,8 @@ export { parseDocument } from './parse'
 export type { Embedder, Generator, Hit, Parser, Ports, Reranker, SearchScope, StoredChunk, VectorStore } from './ports'
 /** The per-stage price table behind cost metering; a consumer-supplied stage is free, a provider one priced. */
 export { priceOf } from './pricing'
+export { chunkContextPrompt, cleanQuery, contextualizePrompt, graphExtractionPrompt } from './prompts'
+export type { PriorTurn } from './prompts'
 export { parseQueryList } from './query-parse'
 export { autoMerge, lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
 export type { MmrArgs, MmrItem, ParentInfo, Retrieved } from './rerank-order'
