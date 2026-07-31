@@ -45,7 +45,14 @@ export type { EngineConfig } from './engine-config'
 /** Supply the world the engine reads — service URLs and the provider registry — so nothing here
  * reaches for a database url, an auth secret or a search endpoint it never uses. */
 export { configureEngine } from './engine-config'
-export { connectedCommunities, dedupeEntities, isDegenerate, normalizeName, parseExtraction } from './graph-core'
+export {
+  connectedCommunities,
+  dedupeEntities,
+  isDegenerate,
+  matchEntityNames,
+  normalizeName,
+  parseExtraction
+} from './graph-core'
 export type { Community, Extraction, GraphEdge, GraphEntity } from './graph-core'
 export {
   communityText,

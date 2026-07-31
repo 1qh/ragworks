@@ -1,5 +1,12 @@
 import { expect, test } from 'bun:test'
-import { connectedCommunities, dedupeEntities, isDegenerate, normalizeName, parseExtraction } from './graph-core'
+import {
+  connectedCommunities,
+  dedupeEntities,
+  isDegenerate,
+  matchEntityNames,
+  normalizeName,
+  parseExtraction
+} from './graph-core'
 
 test('entity names normalize across case, punctuation and spacing so one entity is not three', () => {
   expect(normalizeName('  Green SM,  ')).toBe('green sm')
@@ -126,4 +133,16 @@ test('a single letter or a bare number is a parse fragment, never an entity', ()
   })
   const kept = parseExtraction(raw, 'chunk-1')
   expect(kept.entities.map(e => e.name)).toEqual(['Green SM', 'GSM_KD11'])
+})
+test('a question naming a multi-word entity finds it, and a passing mention does not', () => {
+  const names = ['bộ phận đề xuất', 'cblđ của bộ phận đề xuất', 'giám đốc marketplace', 'admin portal']
+  /** The whole name appears in the question — the case that was impossible when a single token had to
+   * equal the entire name, which is what left every multi-word entity unreachable. */
+  expect(matchEntityNames('bộ phận đề xuất là ai', names)).toContain('bộ phận đề xuất')
+  /** Enough of the entity's own words to be naming it. */
+  expect(matchEntityNames('ai là giám đốc marketplace', names)).toContain('giám đốc marketplace')
+  /** One shared common word is brushing past, never naming: `bộ` alone must not surface a four-word entity. */
+  expect(matchEntityNames('bộ tài liệu này', names)).not.toContain('bộ phận đề xuất')
+  /** An unrelated question surfaces nothing rather than everything. */
+  expect(matchEntityNames('completely unrelated question', names)).toEqual([])
 })
