@@ -1,5 +1,12 @@
 import { expect, test } from 'bun:test'
-import { assembleContextTool, mergeToParents, orderContext, parseQueryListTool, statelessTools } from './mcp'
+import {
+  assembleContextTool,
+  createRetrieveTool,
+  mergeToParents,
+  orderContext,
+  parseQueryListTool,
+  statelessTools
+} from './mcp'
 
 test('every tool carries a name, an input shape and a description that TEACHES', () => {
   for (const tool of statelessTools) {
@@ -40,4 +47,23 @@ test('an empty or unparseable model output falls back to the question rather tha
    * and is taken as such, never treated as failure. */
   expect(parseQueryListTool.run({ fallback: 'original question', text: '' }).queries).toEqual(['original question'])
   expect(parseQueryListTool.run({ fallback: 'original question', text: 'one line' }).queries).toEqual(['one line'])
+})
+test('the retrieve tool runs over a store a stranger supplies, not one this package assumes', async () => {
+  /** Two array lookups ARE the store — if this passes, the port asks for nothing a consumer cannot
+   * bring, which is the only evidence that "any vector database" is a capability rather than a claim. */
+  const texts: Record<string, string> = { a: 'alpha passage', b: 'beta passage' }
+  const store = {
+    search: async () => [
+      { chunkId: 'a', score: 0.9 },
+      { chunkId: 'b', score: 0.4 }
+    ]
+  }
+  const tool = createRetrieveTool({
+    embedder: { embed: async () => [[1, 0, 0]] },
+    scopeOf: (scope: string) => ({ chunkSetIds: [scope] }),
+    store: store as never
+  })
+  const out = await tool.run({ query: 'alpha', scope: 'set-1', topK: 2 })
+  expect(out.candidates.length).toBeGreaterThan(0)
+  expect(texts[out.candidates[0]?.chunkId ?? '']).toBeDefined()
 })

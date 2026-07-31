@@ -16,9 +16,11 @@
  * claim here is measured, it says so. */
 import { z } from 'zod'
 import type { Segment } from './assemble'
+import type { Embedder, Reranker, SearchScope, VectorStore } from './ports'
 import { assembleContext } from './assemble'
 import { parseQueryList } from './query-parse'
 import { autoMerge, lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
+import { retrieve } from './retrieve'
 
 interface ToolDefinition<Shape extends z.ZodRawShape, Result> {
   description: string
@@ -97,6 +99,41 @@ const parseQueryListTool = define({
   name: 'parse-query-list',
   run: args => ({ queries: parseQueryList(args.text, args.fallback) })
 })
+/** The one tool here that reaches a corpus, and it takes the collaborators as arguments rather than
+ * assuming them: the consumer brings its own store, embedder and reranker, so this stays free of any
+ * opinion about where vectors live. It is a FACTORY rather than a definition because a tool that reads
+ * a corpus is meaningless without one — binding the ports at construction keeps the tool's own input
+ * schema about the QUESTION rather than about plumbing the agent should never see.
+ * Only retrieve ships this way. A graph tool would need a graph store, and no port for one has been
+ * shaped by a real consumer yet; inventing it here would be guessing at a shape nobody has asked for. */
+const createRetrieveTool = (deps: {
+  embedder?: Embedder
+  reranker?: Reranker
+  scopeOf: (scope: string) => SearchScope
+  store: VectorStore
+}) =>
+  define({
+    description:
+      'Retrieve the passages that answer a question, over your own vector store. Runs a vector leg and, where the store has one, a keyword leg, then FUSES the two rankings — keywordWeight 0 is pure vector, 1 is pure keyword, and the measured lean is corpus-dependent rather than universal: dense wins where questions are phrased away from the page, keyword wins where they carry its literal figures, and neither holds across question sets. A method that never surfaced a chunk reports a NULL rank rather than zero, so a missing method stays distinguishable from a genuine last place. Follow with diversify-candidates and order-context, then assemble-context under a budget you measured for this corpus.',
+    inputSchema: {
+      keywordWeight: z.number().min(0).max(1).optional(),
+      query: z.string().min(1).max(4000),
+      scope: z.string().min(1),
+      topK: z.number().int().positive().max(100).default(10)
+    },
+    name: 'retrieve',
+    run: async args => ({
+      candidates: await retrieve({
+        embedder: deps.embedder,
+        keywordWeight: args.keywordWeight,
+        query: args.query,
+        reranker: deps.reranker,
+        scope: deps.scopeOf(args.scope),
+        store: deps.store,
+        topK: args.topK
+      })
+    })
+  })
 /** Every stateless primitive, ready to register. A consumer picks the ones it wants to expose. */
 const statelessTools = [
   orderContext,
@@ -105,5 +142,13 @@ const statelessTools = [
   assembleContextTool,
   parseQueryListTool
 ] as const
-export { assembleContextTool, diversifyCandidates, mergeToParents, orderContext, parseQueryListTool, statelessTools }
+export {
+  assembleContextTool,
+  createRetrieveTool,
+  diversifyCandidates,
+  mergeToParents,
+  orderContext,
+  parseQueryListTool,
+  statelessTools
+}
 export type { ToolDefinition }
