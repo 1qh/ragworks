@@ -10,6 +10,7 @@ import { readdir, readFile } from 'node:fs/promises'
  * Adding a module to CORE is a commitment that it stays pure. Anything that must reach a service is
  * an ADAPTER and belongs behind a port. */
 const CORE = [
+  'assemble.ts',
   'bridge.ts',
   'cell-color.ts',
   'concurrency.ts',

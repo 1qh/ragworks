@@ -1,3 +1,5 @@
+export { assembleContext, assembleHops } from './assemble'
+export type { Assembled, CountTokens, Segment } from './assemble'
 /** The RAG engine minus the store: a document in, retrievable chunks with provenance out, and the
  * retrieval logic that ranks them.
  *
