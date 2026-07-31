@@ -32,3 +32,5 @@ jobs:
         if: ${{ failure() && runner.os == 'macOS' }}
         run: |
           osascript -e 'display notification "CI failed: ${{ github.repository }}" with title "CI" sound name "Basso"' || true
+      - name: tests
+        run: bun test
