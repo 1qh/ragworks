@@ -6,6 +6,7 @@ export default defineConfig({
   dts: true,
   entry: [
     'src/index.ts',
+    'src/mcp.ts',
     'src/bridge.ts',
     'src/opensearch.ts',
     'src/models.ts',

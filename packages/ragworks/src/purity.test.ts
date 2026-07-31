@@ -21,6 +21,7 @@ const CORE = [
   'graph-vector.ts',
   'invariant.ts',
   'lib.ts',
+  'mcp.ts',
   'metering.ts',
   'pricing.ts',
   'ports.ts',
