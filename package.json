@@ -23,6 +23,7 @@
   "devDependencies": {
     "fast-check": "latest",
     "lintmax": "latest",
+    "sharp": "latest",
     "sherif": "latest",
     "simple-git-hooks": "latest",
     "tsdown": "latest",
