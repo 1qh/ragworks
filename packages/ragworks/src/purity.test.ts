@@ -15,6 +15,8 @@ const CORE = [
   'concurrency.ts',
   'domain.ts',
   'graph-core.ts',
+  'query-parse.ts',
+  'stage-key.ts',
   'graph-vector.ts',
   'invariant.ts',
   'lib.ts',

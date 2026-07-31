@@ -86,6 +86,7 @@ export { parseDocument } from './parse'
 export type { Embedder, Generator, Hit, Parser, Ports, Reranker, SearchScope, StoredChunk, VectorStore } from './ports'
 /** The per-stage price table behind cost metering; a consumer-supplied stage is free, a provider one priced. */
 export { priceOf } from './pricing'
+export { parseQueryList } from './query-parse'
 export { autoMerge, lostInTheMiddle, maximalMarginalRelevance } from './rerank-order'
 export type { MmrArgs, MmrItem, ParentInfo, Retrieved } from './rerank-order'
 /** Word re-spacing over a parse whose engine lost the spaces between glyphs, corroborated across
@@ -105,3 +106,4 @@ export { hamming, simhash } from './simhash'
 /** Tighten a block's box onto the ink it actually contains, so a region drawn from engine geometry
  * sits over the glyphs rather than the whitespace the engine reported around them. */
 export { INK_CONTRAST, RENDER_SCALE_INK, snapBlocksToInk } from './snap-ink'
+export { canonical, embedRowKey, hash, stageKey } from './stage-key'
