@@ -104,7 +104,8 @@ export { CHAR_MIN, CTRL_MAX, MOJIBAKE_MAX, routePage, VALID_MIN, withoutMinerU }
 export type { PageSignal, Route } from './router'
 /** A spreadsheet read as a grid rather than rendered, so each sheet's cells keep their row and column. */
 export { isSheet, parseSheet } from './sheet'
-export { hamming, simhash } from './simhash'
+export { containedIn, dropCoveredDuplicates, hamming, simhash, wordsOf } from './simhash'
+export type { DedupeOptions } from './simhash'
 /** Tighten a block's box onto the ink it actually contains, so a region drawn from engine geometry
  * sits over the glyphs rather than the whitespace the engine reported around them. */
 export { INK_CONTRAST, RENDER_SCALE_INK, snapBlocksToInk } from './snap-ink'
