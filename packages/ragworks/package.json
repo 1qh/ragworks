@@ -1,6 +1,6 @@
 {
   "name": "ragworks",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "The RAG engine minus the store: multi-engine document understanding with per-page routing, chunking, provenance that survives chunking, embedding, and retrieval logic.",
   "repository": {
     "type": "git",
@@ -50,6 +50,10 @@
     "./region": {
       "types": "./dist/region.d.mts",
       "default": "./dist/region.mjs"
+    },
+    "./textlayer": {
+      "types": "./dist/textlayer.d.mts",
+      "default": "./dist/textlayer.mjs"
     },
     "./vlm": {
       "types": "./dist/vlm.d.mts",

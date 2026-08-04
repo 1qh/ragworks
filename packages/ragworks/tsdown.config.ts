@@ -15,7 +15,8 @@ export default defineConfig({
     'src/region.ts',
     'src/vlm.ts',
     'src/digital.ts',
-    'src/geometry.ts'
+    'src/geometry.ts',
+    'src/textlayer.ts'
   ],
   format: 'esm',
   outDir: 'dist'
