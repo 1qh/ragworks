@@ -71,7 +71,7 @@ const partitionCache = (
 }
 /** A batch pads every input to its longest member, and chunk lengths are wildly uneven (median 37 characters, p90 400, max in the thousands), so a mixed batch spends most of its compute on padding. Embedding length-sorted and restoring the caller's order measures 1.9x faster end to end, and the gain grows with batch size — an unsorted batch gets SLOWER as the batch grows. */
 const byLength = (texts: string[]): { index: number; text: string }[] =>
-  texts.map((text, index) => ({ index, text })).sort((a, b) => a.text.length - b.text.length)
+  texts.map((text, index) => ({ index, text })).toSorted((a, b) => a.text.length - b.text.length)
 const inCallerOrder = (order: { index: number; text: string }[], vectors: number[][]): number[][] => {
   const restored: number[][] = Array.from({ length: order.length })
   for (const [position, o] of order.entries()) {

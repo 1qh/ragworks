@@ -9,7 +9,8 @@ import { join } from 'node:path'
 import { engineEnv as env } from './engine-config'
 import { contentTypeOf, isOfficeName, isSofficeName } from './upload'
 
-const OFFICE_EXT = /\.(?:docx|pptx|html?|odt|odp|ods|rtf|doc|ppt|xlsx?)$/iu
+const FINAL_EXT_RE = /\.[^.]+$/u
+const outputName = (src: string, ext: string): string => src.replace(FINAL_EXT_RE, ext)
 const sofficeConvert = async ({
   bytes,
   ext,
@@ -36,7 +37,7 @@ const sofficeConvert = async ({
       const err = await new Response(proc.stderr).text()
       throw new Error(`soffice convert-to ${format} failed (exit ${String(code)}): ${err.slice(0, 200)}`)
     }
-    const outPath = src.replace(OFFICE_EXT, ext)
+    const outPath = outputName(src, ext)
     const out = Bun.file(outPath)
     if (!(await out.exists())) throw new Error(`soffice produced no ${ext}`)
     return new Uint8Array(await out.arrayBuffer())
@@ -55,4 +56,4 @@ const mupdfInput = async (
   isOfficeName(name) || isSofficeName(name)
     ? { bytes: await officeToPdf(raw, name), contentType: 'application/pdf' }
     : { bytes: raw, contentType: contentTypeOf(name) }
-export { mupdfInput, officeToPdf, xlsToXlsx }
+export { mupdfInput, officeToPdf, outputName, xlsToXlsx }
