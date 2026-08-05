@@ -6,7 +6,7 @@ import { Document } from 'mupdf'
  * inputs are converted to pdf first through the shared soffice bridge; an input with no text layer yields
  * no blocks rather than a guess. */
 import type { Block } from './lib'
-import { mupdfInput } from './office-render'
+import { mupdfInput, officeToPdf } from './office-render'
 
 type Box = [number, number, number, number]
 interface MuBlock {
@@ -43,10 +43,8 @@ const linesOfPage = (json: string, heightPt: number, pageNo: number): Block[] =>
       if (text.length > 0 && w >= 2 && h >= 2 && !COMBINING.test(text))
         raw.push({ bbox: [x, heightPt - y, x + w, heightPt - (y + h)], text })
     }
-
   const kept = raw.filter((line, i) => {
     if (line.text.length > 2) return true
-
     const thr = line.text.length === 1 ? 0.3 : 0.6
     return !raw.some(
       (other, j) => j !== i && area(other.bbox) > area(line.bbox) && insideFrac(line.bbox, other.bbox) > thr
@@ -56,7 +54,6 @@ const linesOfPage = (json: string, heightPt: number, pageNo: number): Block[] =>
 }
 const dropFurniture = (blocks: Block[], pageCount: number): Block[] => {
   if (pageCount < 3) return blocks
-
   const pagesByKey = new Map<string, Set<number>>()
   for (const block of blocks)
     if (block.bbox) {
@@ -65,7 +62,6 @@ const dropFurniture = (blocks: Block[], pageCount: number): Block[] => {
       set.add(block.page)
       pagesByKey.set(key, set)
     }
-
   const threshold = Math.max(3, Math.ceil(pageCount / 2))
   return blocks.filter(block => (pagesByKey.get(furnitureKey(block))?.size ?? 0) < threshold)
 }
@@ -86,9 +82,8 @@ const textLayerBlocks = (pdfBytes: Uint8Array<ArrayBuffer>): Block[] =>
 const parseTextLayer = async (raw: Uint8Array<ArrayBuffer>, name: string): Promise<TextLayerResult> => {
   const { bytes, contentType } = await mupdfInput(raw, name)
   if (contentType !== 'application/pdf') return { blocks: [], contentType, pageCount: 0, pdfBytes: bytes }
-
   const doc = Document.openDocument(bytes, 'application/pdf')
   return { blocks: blocksFromDoc(doc), contentType, pageCount: doc.countPages(), pdfBytes: bytes }
 }
 export type { TextLayerResult }
-export { parseTextLayer, textLayerBlocks }
+export { officeToPdf, parseTextLayer, textLayerBlocks }

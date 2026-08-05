@@ -9,7 +9,7 @@ import { join } from 'node:path'
 import { engineEnv as env } from './engine-config'
 import { contentTypeOf, isOfficeName, isSofficeName } from './upload'
 
-const OFFICE_EXT = /\.(?:docx|pptx|html?|odt|odp|ods|rtf|doc|ppt|xls)$/iu
+const OFFICE_EXT = /\.(?:docx|pptx|html?|odt|odp|ods|rtf|doc|ppt|xlsx?)$/iu
 const sofficeConvert = async ({
   bytes,
   ext,
