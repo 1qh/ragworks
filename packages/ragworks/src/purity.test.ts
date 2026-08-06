@@ -81,6 +81,7 @@ const NOT_CORE_SURFACE: Record<string, string> = {
   'region.ts': 'wires an adapter into one capability rather than computing anything itself',
   'sheet.ts': 'reads a workbook through a reader dependency',
   'test-base.ts': 'a test helper, never shipped as a capability',
+  'textlayer.ts': 'reads a page text layer through the mupdf reader, wired to the office adapter',
   'upload.ts': 'plumbing a host supplies for itself',
   'vlm.ts': 'names an adapter capability rather than computing anything itself'
 }

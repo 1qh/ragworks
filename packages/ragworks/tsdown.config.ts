@@ -4,7 +4,20 @@ export default defineConfig({
   clean: true,
   deps: { neverBundle: ['bun'] },
   dts: true,
-  entry: ['src/index.ts'],
+  entry: [
+    'src/index.ts',
+    'src/mcp.ts',
+    'src/bridge.ts',
+    'src/opensearch.ts',
+    'src/models.ts',
+    'src/office-render.ts',
+    'src/embed-cache.ts',
+    'src/region.ts',
+    'src/vlm.ts',
+    'src/digital.ts',
+    'src/geometry.ts',
+    'src/textlayer.ts'
+  ],
   format: 'esm',
   outDir: 'dist'
 })
