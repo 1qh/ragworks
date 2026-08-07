@@ -1,5 +1,5 @@
 import IntervalTree from '@flatten-js/interval-tree'
-import type { Block, Charspan, Region } from './lib'
+import type { Bbox, Block, Charspan, Region } from './lib'
 import type { GridCell } from './table-grid'
 import { describeGrid } from './table-grid'
 
@@ -116,12 +116,67 @@ const locateChunks = (text: string, chunks: readonly string[], overlap = 0): Cha
   }
   return spans
 }
+const EMPTY_BBOX: Bbox = [0, 0, 0, 0]
+const centerY = (b: Bbox): number => (b[1] + b[3]) / 2
+const boxHeight = (b: Bbox): number => Math.abs(b[1] - b[3])
+const midpoint = (values: readonly number[]): number => {
+  const sorted = [...values].toSorted((a, b) => a - b)
+  return sorted[Math.floor(sorted.length / 2)] ?? 0
+}
+const coverBox = (boxes: readonly Bbox[]): Bbox => {
+  const head = boxes[0] ?? EMPTY_BBOX
+  const topFirst = head[1] <= head[3]
+  const xs = boxes.flatMap(b => [b[0], b[2]])
+  const ys = boxes.flatMap(b => [b[1], b[3]])
+  const x0 = Math.min(...xs)
+  const x1 = Math.max(...xs)
+  const ymin = Math.min(...ys)
+  const ymax = Math.max(...ys)
+  return topFirst ? [x0, ymin, x1, ymax] : [x0, ymax, x1, ymin]
+}
+const clusterByLine = (boxes: readonly Bbox[]): Bbox[][] => {
+  const lineHeight = midpoint(boxes.map(boxHeight))
+  if (lineHeight <= 0) return boxes.length > 0 ? [[...boxes]] : []
+  const gap = lineHeight * 4
+  const sorted = [...boxes].toSorted((a, b) => centerY(a) - centerY(b))
+  const clusters: Bbox[][] = []
+  let current: Bbox[] = []
+  let prev = Number.NaN
+  for (const box of sorted) {
+    const c = centerY(box)
+    if (current.length > 0 && Math.abs(c - prev) > gap) {
+      clusters.push(current)
+      current = []
+    }
+    current.push(box)
+    prev = c
+  }
+  if (current.length > 0) clusters.push(current)
+  return clusters
+}
+const mergeRegions = (regions: readonly Region[]): Region[] => {
+  const byPage = new Map<number, Bbox[]>()
+  for (const r of regions) {
+    const boxes = byPage.get(r.page) ?? []
+    boxes.push(r.bbox)
+    byPage.set(r.page, boxes)
+  }
+  const out: Region[] = []
+  for (const [page, boxes] of byPage) {
+    const clusters = clusterByLine(boxes)
+    const largest = Math.max(0, ...clusters.map(c => c.length))
+    for (const cluster of clusters)
+      if (cluster.length >= 2 || cluster.length === largest) out.push({ bbox: coverBox(cluster), page })
+  }
+  return out
+}
 export {
   blockChunks,
   buildRegionIndex,
   describeGrid,
   locateChunks,
   markdownOf,
+  mergeRegions,
   MIN_REGION_WIDTH,
   positionBlocks,
   regionsFor

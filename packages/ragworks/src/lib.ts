@@ -7,6 +7,7 @@ export {
   buildRegionIndex,
   locateChunks,
   markdownOf,
+  mergeRegions,
   MIN_REGION_WIDTH,
   positionBlocks,
   regionsFor
