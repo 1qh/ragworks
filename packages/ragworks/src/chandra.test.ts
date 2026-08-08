@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test'
-import { isDegenerate, pageBlocks, renderCrop } from './chandra'
+import type { Block } from './lib'
+import { isDegenerate, isGeometryless, offsetBlock, pageBlocks, renderCrop } from './chandra'
 import { buildPdf } from './test-base'
 
 const div = (bbox: string, text: string): string => `<div data-bbox="${bbox}" data-label="text"><p>${text}</p></div>`
@@ -35,6 +36,29 @@ test('isDegenerate passes a normal page of varied block texts', () => {
 })
 test('isDegenerate ignores a short page below the repetition threshold', () => {
   expect(isDegenerate(div('10 20 400 35', 'x') + div('10 40 400 55', 'x'))).toBe(false)
+})
+test('isGeometryless flags a page read whole as one bbox-less text block', () => {
+  const pb: Block[] = [{ bbox: null, kind: 'text', page: 1, text: 'a whole page of prose the model could not localize' }]
+  expect(isGeometryless(pb)).toBe(true)
+})
+test('isGeometryless passes a page that already carries geometry', () => {
+  const pb: Block[] = [{ bbox: [0, 0, 10, 10], kind: 'text', page: 1, text: 'located line' }]
+  expect(isGeometryless(pb)).toBe(false)
+})
+test('isGeometryless passes a multi-block page and an empty page', () => {
+  const two: Block[] = [
+    { bbox: null, kind: 'text', page: 1, text: 'one' },
+    { bbox: null, kind: 'text', page: 1, text: 'two' }
+  ]
+  expect(isGeometryless(two)).toBe(false)
+  expect(isGeometryless([{ bbox: null, kind: 'text', page: 1, text: '' }])).toBe(false)
+  expect(isGeometryless([])).toBe(false)
+})
+test('offsetBlock shifts a boxed block down by the tile origin and leaves a bbox-less block alone', () => {
+  const boxed: Block = { bbox: [1, 2, 3, 4], kind: 'text', page: 1, text: 'line' }
+  expect(offsetBlock(boxed, 100).bbox).toEqual([1, 102, 3, 104])
+  const bare: Block = { bbox: null, kind: 'text', page: 1, text: 'line' }
+  expect(offsetBlock(bare, 100).bbox).toBeNull()
 })
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 test('renderCrop returns a PNG crop of the given page bbox', () => {

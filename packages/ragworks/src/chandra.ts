@@ -25,6 +25,8 @@ import { vertexAuthHeader } from './vertex'
 const PROMPT = 'Convert this document to markdown.'
 const SCALE = 2
 const VLM_MAX_DIM = 1600
+const TILE_SCALE = 4
+const TILE_COUNT = 2
 const isDegenerate = (html: string): boolean => {
   const texts = parseHtml(html)
     .querySelectorAll('div')
@@ -267,21 +269,23 @@ const renderCrop = ({
   bbox,
   bytes,
   contentType,
-  pageIndex
+  pageIndex,
+  scale = SCALE
 }: {
   bbox: Bbox
   bytes: Uint8Array<ArrayBuffer>
   contentType: string
   pageIndex: number
+  scale?: number
 }): string => {
   const doc = Document.openDocument(bytes, contentType)
-  const pix = doc.loadPage(pageIndex).toPixmap(Matrix.scale(SCALE, SCALE), ColorSpace.DeviceRGB, false)
-  const heightPt = pix.getHeight() / SCALE
+  const pix = doc.loadPage(pageIndex).toPixmap(Matrix.scale(scale, scale), ColorSpace.DeviceRGB, false)
+  const heightPt = pix.getHeight() / scale
   const [l, t, r, b] = bbox
-  const x0 = Math.min(l, r) * SCALE
-  const x1 = Math.max(l, r) * SCALE
-  const yTop = (heightPt - Math.max(t, b)) * SCALE
-  const yBot = (heightPt - Math.min(t, b)) * SCALE
+  const x0 = Math.min(l, r) * scale
+  const x1 = Math.max(l, r) * scale
+  const yTop = (heightPt - Math.max(t, b)) * scale
+  const yBot = (heightPt - Math.min(t, b)) * scale
   const w0 = Math.max(1, Math.round(x1 - x0))
   const h0 = Math.max(1, Math.round(yBot - yTop))
   const cap = Math.min(1, VLM_MAX_DIM / Math.max(w0, h0))
@@ -298,6 +302,86 @@ const renderCrop = ({
     h
   )
   return Buffer.from(cropped.asPNG()).toString('base64')
+}
+interface RenderedPage {
+  heightPt: number
+  png: string
+  widthPt: number
+}
+const offsetBlock = (block: Block, yLo: number): Block =>
+  block.bbox ? { ...block, bbox: [block.bbox[0], block.bbox[1] + yLo, block.bbox[2], block.bbox[3] + yLo] } : block
+const ocrTile = async (
+  args: { bytes: Uint8Array<ArrayBuffer>; pageIndex: number; pageNo: number; widthPt: number },
+  band: { yHi: number; yLo: number },
+  vlm: VlmModel
+): Promise<Block[]> => {
+  const { bytes, pageIndex, pageNo, widthPt } = args
+  const { yHi, yLo } = band
+  try {
+    const png = renderCrop({
+      bbox: [0, yLo, widthPt, yHi],
+      bytes,
+      contentType: 'application/pdf',
+      pageIndex,
+      scale: TILE_SCALE
+    })
+    const html = await ocrPage(png, vlm)
+    return pageBlocks({ heightPt: yHi - yLo, html, pageNo, widthPt })
+      .filter(block => block.bbox)
+      .map(block => offsetBlock(block, yLo))
+  } catch (tileError) {
+    log.warn({ pageNo, tileError, yLo }, 'vlm ocr tile failed — degraded to empty')
+    return []
+  }
+}
+const tiledPageBlocks = async (
+  args: { bytes: Uint8Array<ArrayBuffer>; heightPt: number; pageIndex: number; pageNo: number; widthPt: number },
+  vlm: VlmModel
+): Promise<Block[]> => {
+  const out: Block[] = []
+  for (let tile = 0; tile < TILE_COUNT; tile += 1) {
+    if (tile > 0) await sleep(PAGE_PACE_MS)
+    const yLo = (args.heightPt * tile) / TILE_COUNT
+    const yHi = (args.heightPt * (tile + 1)) / TILE_COUNT
+    out.push(...(await ocrTile(args, { yHi, yLo }, vlm)))
+  }
+  return out
+}
+const renderPdfPages = (doc: ReturnType<typeof Document.openDocument>, count: number): RenderedPage[] =>
+  Array.from({ length: count }, (_, i) => {
+    const page = doc.loadPage(i)
+    const b = page.getBounds()
+    const scale = Math.min(SCALE, VLM_MAX_DIM / Math.max(b[2] - b[0], b[3] - b[1]))
+    const pix = page.toPixmap(Matrix.scale(scale, scale), ColorSpace.DeviceRGB, false)
+    return {
+      heightPt: pix.getHeight() / scale,
+      png: Buffer.from(pix.asPNG()).toString('base64'),
+      widthPt: pix.getWidth() / scale
+    }
+  })
+const ocrPages = async (
+  rendered: RenderedPage[],
+  vlm: VlmModel,
+  onProgress?: (label: string) => void
+): Promise<{ failedPages: number[]; htmls: string[] }> => {
+  const htmls: string[] = []
+  const failedPages: number[] = []
+  for (const [i, r] of rendered.entries()) {
+    onProgress?.(`reading page ${String(i + 1)}/${String(rendered.length)}`)
+    if (i > 0) await sleep(PAGE_PACE_MS)
+    try {
+      htmls.push(await ocrPage(r.png, vlm))
+    } catch (pageError) {
+      log.warn({ page: i + 1, pageError }, 'vlm ocr page failed — degraded to empty')
+      failedPages.push(i + 1)
+      htmls.push('')
+    }
+  }
+  return { failedPages, htmls }
+}
+const isGeometryless = (pb: Block[]): boolean => {
+  const [only] = pb
+  return pb.length === 1 && only?.bbox === null && only.text.length > 0
 }
 const parsePdfVlm = async ({
   bytes,
@@ -318,37 +402,35 @@ const parsePdfVlm = async ({
   const doc = Document.openDocument(bytes, 'application/pdf')
   const count = doc.countPages()
   onProgress?.(`rendering ${String(count)} pages`)
-  const rendered = Array.from({ length: count }, (_, i) => {
-    const page = doc.loadPage(i)
-    const b = page.getBounds()
-    const scale = Math.min(SCALE, VLM_MAX_DIM / Math.max(b[2] - b[0], b[3] - b[1]))
-    const pix = page.toPixmap(Matrix.scale(scale, scale), ColorSpace.DeviceRGB, false)
-    return {
-      heightPt: pix.getHeight() / scale,
-      png: Buffer.from(pix.asPNG()).toString('base64'),
-      widthPt: pix.getWidth() / scale
-    }
-  })
+  const rendered = renderPdfPages(doc, count)
   onProgress?.(`reading ${String(count)} pages`)
-  const htmls: string[] = []
-  const failedPages: number[] = []
-  for (const [i, r] of rendered.entries()) {
-    onProgress?.(`reading page ${String(i + 1)}/${String(count)}`)
-    if (i > 0) await sleep(PAGE_PACE_MS)
-    try {
-      htmls.push(await ocrPage(r.png, vlm))
-    } catch (pageError) {
-      log.warn({ page: i + 1, pageError }, 'vlm ocr page failed — degraded to empty')
-      failedPages.push(i + 1)
-      htmls.push('')
-    }
-  }
+  const { failedPages, htmls } = await ocrPages(rendered, vlm, onProgress)
   if (htmls.every(h => h.trim() === '')) throw new Error('vlm ocr produced no content for any page')
   if (failedPages.length > 0) log.warn({ failedPages, total: count }, 'vlm ocr shipped a partial document')
-  const blocks = rendered.flatMap((r, i) =>
-    pageBlocks({ heightPt: r.heightPt, html: htmls[i] ?? '', pageNo: i + 1, widthPt: r.widthPt })
-  )
+  const blocks: Block[] = []
+  for (const [i, r] of rendered.entries()) {
+    const pb = pageBlocks({ heightPt: r.heightPt, html: htmls[i] ?? '', pageNo: i + 1, widthPt: r.widthPt })
+    if (isGeometryless(pb)) {
+      onProgress?.(`localizing page ${String(i + 1)} tiled`)
+      const tiled = await tiledPageBlocks(
+        { bytes, heightPt: r.heightPt, pageIndex: i, pageNo: i + 1, widthPt: r.widthPt },
+        vlm
+      )
+      blocks.push(...(tiled.length > 0 ? tiled : pb))
+    } else blocks.push(...pb)
+  }
   const pages = rendered.map((r, i) => ({ height: r.heightPt, pageNo: i + 1, width: r.widthPt }))
   return { blocks, engine: `vlm@${vlm.model}`, geometry: geometryOf(blocks), markdown: markdownOf(blocks), pages }
 }
-export { isDegenerate, ocrCropText, ocrPage, pageBlocks, parsePdfVlm, renderCrop, requireVlm, tableToRows }
+export {
+  isDegenerate,
+  isGeometryless,
+  ocrCropText,
+  ocrPage,
+  offsetBlock,
+  pageBlocks,
+  parsePdfVlm,
+  renderCrop,
+  requireVlm,
+  tableToRows
+}
