@@ -13,6 +13,10 @@ interface EngineConfig {
   readonly OPENSEARCH_URL?: string
   readonly OTEL_EXPORTER_OTLP_ENDPOINT?: string
   readonly PROVIDERS_FILE: string
+  /** The python interpreter carrying the LibreOffice UNO bridge, used only by the presentation
+   * slide-render fallback when soffice's own paginated PDF export fails on a deck. Unset falls
+   * through to `python3`; a deployment adds `python3-uno` beside LibreOffice for it to resolve. */
+  readonly PYTHON_UNO_PATH?: string
   readonly REDIS_URL?: string
   readonly SOFFICE_PATH?: string
   readonly VERTEX_CLIENT_EMAIL?: string

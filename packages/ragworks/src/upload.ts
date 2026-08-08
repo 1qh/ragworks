@@ -21,6 +21,7 @@ const PPTX_RE = /\.pptx$/iu
 const HTML_RE = /\.html?$/iu
 const OFFICE_RE = /\.(?:docx|pptx|html?)$/iu
 const SOFFICE_RE = /\.(?:odt|odp|rtf|doc|ppt)$/iu
+const PRESENTATION_RE = /\.(?:pptx|ppt|odp)$/iu
 const LEGACY_SHEET_RE = /\.(?:xls|ods)$/iu
 const ACCEPT =
   '.pdf,.docx,.pptx,.html,.odt,.odp,.ods,.rtf,.doc,.ppt,.csv,.xls,.xlsx,.txt,.md,.png,.jpg,.jpeg,.webp,.tiff,.tif,.gif,.bmp,application/pdf'
@@ -29,6 +30,7 @@ const isTextName = (name: string): boolean => TEXT_RE.test(name)
 const isImageName = (name: string): boolean => IMAGE_RE.test(name)
 const isOfficeName = (name: string): boolean => OFFICE_RE.test(name)
 const isSofficeName = (name: string): boolean => SOFFICE_RE.test(name)
+const isPresentationName = (name: string): boolean => PRESENTATION_RE.test(name)
 const isLegacySheet = (name: string): boolean => LEGACY_SHEET_RE.test(name)
 const acceptedFile = (f: File): boolean =>
   f.type === PDF ||
@@ -62,6 +64,7 @@ export {
   isImageName,
   isLegacySheet,
   isOfficeName,
+  isPresentationName,
   isSheetName,
   isSofficeName,
   isTextName,
